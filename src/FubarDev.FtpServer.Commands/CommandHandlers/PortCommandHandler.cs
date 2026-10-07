@@ -14,6 +14,7 @@ using FubarDev.FtpServer.Commands;
 using FubarDev.FtpServer.DataConnection;
 using FubarDev.FtpServer.Features;
 
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Options;
 
 namespace FubarDev.FtpServer.CommandHandlers
@@ -55,16 +56,22 @@ namespace FubarDev.FtpServer.CommandHandlers
 
             try
             {
-                var connectionFeature = Connection.Features.Get<IConnectionFeature>();
+                var connectionFeature = Connection.Features.GetRequiredFeature<IConnectionFeature>();
                 var address = Parse(command.Argument, connectionFeature.RemoteEndPoint);
                 if (address == null)
                 {
                     return new FtpResponse(501, T("Syntax error in parameters or arguments."));
                 }
 
+                if (!IsAllowedTarget(address, connectionFeature.RemoteEndPoint))
+                {
+                    // RFC 2577: refuse PORT/EPRT to third-party hosts and privileged ports (FTP bounce).
+                    return new FtpResponse(504, T("Command not implemented for that parameter."));
+                }
+
                 var feature = await _dataConnectionFeatureFactory.CreateFeatureAsync(command, address, _options.DataPort)
                    .ConfigureAwait(false);
-                var oldFeature = Connection.Features.Get<IFtpDataConnectionFeature>();
+                var oldFeature = Connection.Features.GetRequiredFeature<IFtpDataConnectionFeature>();
                 try
                 {
                     await oldFeature.DisposeAsync();
@@ -79,6 +86,10 @@ namespace FubarDev.FtpServer.CommandHandlers
             catch (NotSupportedException ex)
             {
                 return new FtpResponse(522, T("Extended port failure - {0}.", ex.Message));
+            }
+            catch (Exception ex) when (ex is FormatException or OverflowException or ArgumentException)
+            {
+                return new FtpResponse(501, T("Syntax error in parameters or arguments."));
             }
 
             return new FtpResponse(200, T("Command okay."));
@@ -101,6 +112,20 @@ namespace FubarDev.FtpServer.CommandHandlers
                 ? ParseEnhanced(address!, remoteEndPoint)
                 : ParseLegacy(address!);
         }
+
+        private bool IsAllowedTarget(IPEndPoint target, IPEndPoint remoteEndPoint)
+        {
+            if (!_options.AllowPrivilegedPort && target.Port < 1024)
+            {
+                return false;
+            }
+
+            return _options.AllowForeignAddress
+                || Normalize(target.Address).Equals(Normalize(remoteEndPoint.Address));
+        }
+
+        private static IPAddress Normalize(IPAddress address)
+            => address.IsIPv4MappedToIPv6 ? address.MapToIPv4() : address;
 
         private static bool IsEnhancedAddress(string address)
         {

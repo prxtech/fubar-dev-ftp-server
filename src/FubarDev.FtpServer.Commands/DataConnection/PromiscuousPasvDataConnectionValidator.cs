@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 using FubarDev.FtpServer.Features;
 
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -59,12 +60,12 @@ namespace FubarDev.FtpServer.DataConnection
             }
 
             var pasvRemoteAddress = dataConnection.RemoteAddress.Address;
-            if (Equals(pasvRemoteAddress, connection.RemoteEndPoint.Address))
+            if (Equals(Normalize(pasvRemoteAddress), Normalize(connection.RemoteEndPoint.Address)))
             {
                 return Task.FromResult<ValidationResult?>(ValidationResult.Success);
             }
 
-            var localizationFeature = connection.Features.Get<ILocalizationFeature>();
+            var localizationFeature = connection.Features.GetRequiredFeature<ILocalizationFeature>();
             var errorMessage = string.Format(
                 localizationFeature.Catalog.GetString("Data connection attempt from {0} for control connection from {1}, data connection rejected"),
                 pasvRemoteAddress,
@@ -72,5 +73,8 @@ namespace FubarDev.FtpServer.DataConnection
             _logger?.LogWarning(errorMessage);
             return Task.FromResult<ValidationResult?>(new ValidationResult(errorMessage));
         }
+
+        private static System.Net.IPAddress Normalize(System.Net.IPAddress address)
+            => address.IsIPv4MappedToIPv6 ? address.MapToIPv4() : address;
     }
 }
