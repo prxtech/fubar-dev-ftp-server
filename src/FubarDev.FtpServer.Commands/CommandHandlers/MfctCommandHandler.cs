@@ -13,6 +13,8 @@ using FubarDev.FtpServer.Features;
 using FubarDev.FtpServer.FileSystem;
 using FubarDev.FtpServer.ListFormatters.Facts;
 
+using Microsoft.AspNetCore.Http.Features;
+
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
@@ -36,7 +38,7 @@ namespace FubarDev.FtpServer.CommandHandlers
                 return new FtpResponse(551, T("Invalid timestamp."));
             }
 
-            var fsFeature = Connection.Features.Get<IFileSystemFeature>();
+            var fsFeature = Connection.Features.GetRequiredFeature<IFileSystemFeature>();
 
             var path = parts[1];
             var currentPath = fsFeature.Path.Clone();

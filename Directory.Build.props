@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+
+    <VersionPrefix>4.0.0</VersionPrefix>
+    <VersionSuffix>alert</VersionSuffix>
+    <Product>FTP Server</Product>
+    <Copyright>Fubar Development Junker 2015-2019, 40three GmbH 2019, Alert 2026</Copyright>
+    <Company>Fubar Development Junker</Company>
+    <Authors>Fubar Development Junker; Alert</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)FubarDev.FtpServer.ruleset</CodeAnalysisRuleSet>
+    <NoWarn>SA1636;SA1641;$(NoWarn)</NoWarn>
+  </PropertyGroup>
+
+  <!-- Settings for the packable libraries under src/ -->
+  <PropertyGroup Condition=" $(MSBuildProjectDirectory.Contains('$([System.IO.Path]::DirectorySeparatorChar)src$([System.IO.Path]::DirectorySeparatorChar)')) ">
+    <IsPackable>true</IsPackable>
+    <PackageId>Alert.$(MSBuildProjectName)</PackageId>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)GlobalAssemblyInfo.cs" Link="Properties\GlobalAssemblyInfo.cs" />
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" Link="stylecop.json" Visible="false" />
+    <PackageReference Include="StyleCop.Analyzers" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+  </ItemGroup>
+
+</Project>

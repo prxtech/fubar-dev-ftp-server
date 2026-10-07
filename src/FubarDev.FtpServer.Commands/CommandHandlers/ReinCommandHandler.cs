@@ -14,6 +14,7 @@ using FubarDev.FtpServer.Features.Impl;
 using FubarDev.FtpServer.FileSystem;
 using FubarDev.FtpServer.Localization;
 
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -50,7 +51,7 @@ namespace FubarDev.FtpServer.CommandHandlers
         public override async Task<IFtpResponse?> Process(FtpCommand command, CancellationToken cancellationToken)
         {
             // User-Logout
-            var authorizationInformationFeature = Connection.Features.Get<IAuthorizationInformationFeature>();
+            var authorizationInformationFeature = Connection.Features.GetRequiredFeature<IAuthorizationInformationFeature>();
             var user = authorizationInformationFeature.FtpUser;
             var membershipProvider = authorizationInformationFeature.MembershipProvider;
             if (user != null && membershipProvider is IMembershipProviderAsync membershipProviderAsync)
@@ -63,13 +64,13 @@ namespace FubarDev.FtpServer.CommandHandlers
             loginStateMachine.Reset();
 
             // Reset encoding
-            var encodingFeature = Connection.Features.Get<IEncodingFeature>();
+            var encodingFeature = Connection.Features.GetRequiredFeature<IEncodingFeature>();
             encodingFeature.Reset();
 
             // Remember old features
-            var fileSystemFeature = Connection.Features.Get<IFileSystemFeature>();
-            var connectionFeature = Connection.Features.Get<IConnectionFeature>();
-            var secureConnectionFeature = Connection.Features.Get<ISecureConnectionFeature>();
+            var fileSystemFeature = Connection.Features.GetRequiredFeature<IFileSystemFeature>();
+            var connectionFeature = Connection.Features.GetRequiredFeature<IConnectionFeature>();
+            var secureConnectionFeature = Connection.Features.GetRequiredFeature<ISecureConnectionFeature>();
 
             // Reset to empty file system
             fileSystemFeature.FileSystem = new EmptyUnixFileSystem();

@@ -15,6 +15,8 @@ using FubarDev.FtpServer.Features;
 using FubarDev.FtpServer.FileSystem;
 using FubarDev.FtpServer.ServerCommands;
 
+using Microsoft.AspNetCore.Http.Features;
+
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
@@ -41,7 +43,7 @@ namespace FubarDev.FtpServer.CommandHandlers
             var restartPosition = Connection.Features.Get<IRestCommandFeature?>()?.RestartPosition;
             Connection.Features.Set<IRestCommandFeature?>(null);
 
-            var transferMode = Connection.Features.Get<ITransferConfigurationFeature>().TransferMode;
+            var transferMode = Connection.Features.GetRequiredFeature<ITransferConfigurationFeature>().TransferMode;
             if (!transferMode.IsBinary && transferMode.FileType != FtpFileType.Ascii)
             {
                 throw new NotSupportedException();
@@ -53,7 +55,7 @@ namespace FubarDev.FtpServer.CommandHandlers
                 return new FtpResponse(501, T("No file name specified"));
             }
 
-            var fsFeature = Connection.Features.Get<IFileSystemFeature>();
+            var fsFeature = Connection.Features.GetRequiredFeature<IFileSystemFeature>();
             if (!fsFeature.FileSystem.SupportsAppend)
             {
                 return new FtpResponse(550, T("The underlying file system doesn't support this operation."));
@@ -94,7 +96,7 @@ namespace FubarDev.FtpServer.CommandHandlers
             long? restartPosition,
             CancellationToken cancellationToken)
         {
-            var fsFeature = Connection.Features.Get<IFileSystemFeature>();
+            var fsFeature = Connection.Features.GetRequiredFeature<IFileSystemFeature>();
             var stream = dataConnection.Stream;
             stream.ReadTimeout = 10000;
 

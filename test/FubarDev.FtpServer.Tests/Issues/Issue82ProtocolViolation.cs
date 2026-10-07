@@ -1,15 +1,14 @@
-﻿// <copyright file="Issue82ProtocolViolation.cs" company="Fubar Development Junker">
+// <copyright file="Issue82ProtocolViolation.cs" company="Fubar Development Junker">
 // Copyright (c) Fubar Development Junker. All rights reserved.
 // </copyright>
 
-using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
+using System.Linq;
 using System.Threading.Tasks;
 
+using FluentFTP;
+
 using Xunit;
-using Xunit.Abstractions;
 
 namespace FubarDev.FtpServer.Tests.Issues
 {
@@ -46,26 +45,12 @@ namespace FubarDev.FtpServer.Tests.Issues
 
         private async Task<IList<string>> GetFilesAsync()
         {
-            var requestUri = $"ftp://127.0.0.1:{Server.Port}";
-            var request = (FtpWebRequest)WebRequest.Create(requestUri);
-            request.Method = WebRequestMethods.Ftp.ListDirectory;
-            request.Credentials = new NetworkCredential("anonymous", "foo@bar.com");
-            request.KeepAlive = false;
-
-            var files = new List<string>();
-            using var response = await request.GetResponseAsync().ConfigureAwait(false);
-            await using var responseStream = response.GetResponseStream() ?? throw new InvalidOperationException();
-            using var reader = new StreamReader(responseStream);
-            string? line;
-            while ((line = await reader.ReadLineAsync()) != null)
-            {
-                files.Add(Path.GetFileName(line));
-            }
-
-            reader.Close();
-            responseStream.Close();
-
-            return files;
+            // One fresh connection per request, like the original FtpWebRequest with KeepAlive = false.
+            using var client = new AsyncFtpClient("127.0.0.1", "anonymous", "foo@bar.com", Server.Port);
+            await client.Connect().ConfigureAwait(false);
+            var files = await client.GetNameListing().ConfigureAwait(false);
+            await client.Disconnect().ConfigureAwait(false);
+            return files.ToList();
         }
     }
 }

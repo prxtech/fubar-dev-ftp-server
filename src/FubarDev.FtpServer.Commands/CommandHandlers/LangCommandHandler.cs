@@ -12,6 +12,7 @@ using FubarDev.FtpServer.Commands;
 using FubarDev.FtpServer.Features;
 using FubarDev.FtpServer.Localization;
 
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FubarDev.FtpServer.CommandHandlers
@@ -35,11 +36,7 @@ namespace FubarDev.FtpServer.CommandHandlers
         public static string CreateFeatureString(IFtpConnection connection)
         {
             var catalogLoader = connection.ConnectionServices.GetRequiredService<IFtpCatalogLoader>();
-#if NETSTANDARD1_3
-            var currentLanguage = connection.Features.Get<ILocalizationFeature>().Language.Name;
-#else
-            var currentLanguage = connection.Features.Get<ILocalizationFeature>().Language.IetfLanguageTag;
-#endif
+            var currentLanguage = connection.Features.GetRequiredFeature<ILocalizationFeature>().Language.IetfLanguageTag;
             var languages = catalogLoader.GetSupportedLanguages()
                .Select(x => x + (string.Equals(x, currentLanguage) ? "*" : string.Empty));
             var feature = "LANG " + string.Join(";", languages);
@@ -50,7 +47,7 @@ namespace FubarDev.FtpServer.CommandHandlers
         public override async Task<IFtpResponse?> Process(FtpCommand command, CancellationToken cancellationToken)
         {
             var catalogLoader = Connection.ConnectionServices.GetRequiredService<IFtpCatalogLoader>();
-            var localizationFeature = Connection.Features.Get<ILocalizationFeature>();
+            var localizationFeature = Connection.Features.GetRequiredFeature<ILocalizationFeature>();
             if (string.IsNullOrWhiteSpace(command.Argument))
             {
                 localizationFeature.Language = catalogLoader.DefaultLanguage;

@@ -72,7 +72,7 @@ namespace FubarDev.FtpServer
             /// <inheritdoc />
             public Task Configure(IFtpConnection connection, CancellationToken cancellationToken)
             {
-                var serviceProvider = connection.Features.Get<IServiceProvidersFeature>().RequestServices;
+                var serviceProvider = connection.Features.GetRequiredFeature<IServiceProvidersFeature>().RequestServices;
                 var stateMachine = serviceProvider.GetRequiredService<IFtpLoginStateMachine>();
                 var authTlsMechanism = serviceProvider.GetRequiredService<IEnumerable<IAuthenticationMechanism>>()
                    .Single(x => x.CanHandle("TLS"));

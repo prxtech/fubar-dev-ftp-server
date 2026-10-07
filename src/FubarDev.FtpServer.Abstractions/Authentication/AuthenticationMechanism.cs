@@ -9,6 +9,8 @@ using FubarDev.FtpServer.Features;
 
 using JetBrains.Annotations;
 
+using Microsoft.AspNetCore.Http.Features;
+
 namespace FubarDev.FtpServer.Authentication
 {
     /// <summary>
@@ -55,7 +57,7 @@ namespace FubarDev.FtpServer.Authentication
         /// <returns>The translated message.</returns>
         protected string T(string message)
         {
-            return Connection.Features.Get<ILocalizationFeature>().Catalog.GetString(message);
+            return Connection.Features.GetRequiredFeature<ILocalizationFeature>().Catalog.GetString(message);
         }
 
         /// <summary>
@@ -67,7 +69,7 @@ namespace FubarDev.FtpServer.Authentication
         [StringFormatMethod("message")]
         protected string T(string message, params object[] args)
         {
-            return Connection.Features.Get<ILocalizationFeature>().Catalog.GetString(message, args);
+            return Connection.Features.GetRequiredFeature<ILocalizationFeature>().Catalog.GetString(message, args);
         }
     }
 }

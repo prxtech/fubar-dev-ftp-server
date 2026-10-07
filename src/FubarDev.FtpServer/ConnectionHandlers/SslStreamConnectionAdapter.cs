@@ -179,24 +179,6 @@ namespace FubarDev.FtpServer.ConnectionHandlers
                 return Task.CompletedTask;
             }
 
-#if USE_SYNC_SSL_STREAM
-            /// <inheritdoc />
-            protected override Task WriteToStreamAsync(
-                byte[] buffer,
-                int offset,
-                int length,
-                CancellationToken cancellationToken)
-            {
-                // We have to use Write instead of WriteAsync, because
-                // otherwise we might run into a deadlock.
-                //
-                // It **might** be related to the following issues:
-                // https://github.com/dotnet/corefx/issues/5077
-                // https://github.com/dotnet/corefx/issues/14698
-                Stream.Write(buffer, offset, length);
-                return Task.CompletedTask;
-            }
-#endif
         }
     }
 }

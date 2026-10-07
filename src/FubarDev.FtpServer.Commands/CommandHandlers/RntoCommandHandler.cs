@@ -12,6 +12,8 @@ using FubarDev.FtpServer.Commands;
 using FubarDev.FtpServer.Features;
 using FubarDev.FtpServer.FileSystem;
 
+using Microsoft.AspNetCore.Http.Features;
+
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
@@ -34,7 +36,7 @@ namespace FubarDev.FtpServer.CommandHandlers
                 return new FtpResponse(550, T("Item specified for RNFR doesn't exist."));
             }
 
-            var fsFeature = Connection.Features.Get<IFileSystemFeature>();
+            var fsFeature = Connection.Features.GetRequiredFeature<IFileSystemFeature>();
 
             var fileName = command.Argument;
             var tempPath = fsFeature.Path.Clone();

@@ -13,9 +13,8 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using FubarDev.FtpServer.Features;
-#if !NETSTANDARD1_3
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
-#endif
 
 namespace FubarDev.FtpServer.BackgroundTransfer
 {
@@ -58,7 +57,7 @@ namespace FubarDev.FtpServer.BackgroundTransfer
                 _handlerTask = handler.Process(command, _cancellationTokenSource.Token);
             }
 
-            var localizationFeature = _connection.Features.Get<ILocalizationFeature>();
+            var localizationFeature = _connection.Features.GetRequiredFeature<ILocalizationFeature>();
 
             var taskCanceled = _handlerTask
                 .ContinueWith<IFtpResponse?>(

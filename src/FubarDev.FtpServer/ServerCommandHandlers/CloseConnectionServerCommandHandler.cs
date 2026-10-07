@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using FubarDev.FtpServer.Features;
 using FubarDev.FtpServer.ServerCommands;
 
+using Microsoft.AspNetCore.Http.Features;
+
 namespace FubarDev.FtpServer.ServerCommandHandlers
 {
     /// <summary>
@@ -32,7 +34,7 @@ namespace FubarDev.FtpServer.ServerCommandHandlers
         {
             var connection = _connectionAccessor.FtpConnection;
 
-            var networkStreamFeature = connection.Features.Get<INetworkStreamFeature>();
+            var networkStreamFeature = connection.Features.GetRequiredFeature<INetworkStreamFeature>();
             await networkStreamFeature.SecureConnectionAdapter.StopAsync(cancellationToken);
 
             // Just abort the connection. This should avoid problems with an ObjectDisposedException.

@@ -12,6 +12,7 @@ using FubarDev.FtpServer.Authentication;
 using FubarDev.FtpServer.Authorization;
 using FubarDev.FtpServer.Features;
 
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Options;
 
 namespace FubarDev.FtpServer
@@ -49,7 +50,7 @@ namespace FubarDev.FtpServer
         /// <inheritdoc />
         public Task<IFtpResponse> SelectHostAsync(HostInfo hostInfo, CancellationToken cancellationToken)
         {
-            var localizationFeature = _connection.Features.Get<ILocalizationFeature>();
+            var localizationFeature = _connection.Features.GetRequiredFeature<ILocalizationFeature>();
             return Task.FromResult<IFtpResponse>(new FtpResponse(504, localizationFeature.Catalog.GetString("Unknown host \"{0}\"", hostInfo)));
         }
 

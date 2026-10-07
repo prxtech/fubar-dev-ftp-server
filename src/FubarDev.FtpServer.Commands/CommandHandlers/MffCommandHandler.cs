@@ -16,6 +16,8 @@ using FubarDev.FtpServer.Features;
 using FubarDev.FtpServer.FileSystem;
 using FubarDev.FtpServer.ListFormatters.Facts;
 
+using Microsoft.AspNetCore.Http.Features;
+
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
@@ -86,7 +88,7 @@ namespace FubarDev.FtpServer.CommandHandlers
                 factInfos.Add(keyValue[0], keyValue[1]);
             }
 
-            var fsFeature = Connection.Features.Get<IFileSystemFeature>();
+            var fsFeature = Connection.Features.GetRequiredFeature<IFileSystemFeature>();
 
             var path = parts[1];
             var currentPath = fsFeature.Path.Clone();

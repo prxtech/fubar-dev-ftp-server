@@ -117,12 +117,12 @@ namespace FubarDev.FtpServer.FileSystem.S3
                 do
                 {
                     response = await _client.ListObjectsAsync(_options.BucketName, sourceKey, cancellationToken);
-                    foreach (var s3Object in response.S3Objects)
+                    foreach (var s3Object in response.S3Objects ?? [])
                     {
                         await MoveFile(s3Object.Key, key + s3Object.Key.Substring(sourceKey.Length), cancellationToken);
                     }
                 }
-                while (response.IsTruncated);
+                while (response.IsTruncated == true);
 
                 return new S3DirectoryEntry(key);
             }
@@ -263,12 +263,12 @@ namespace FubarDev.FtpServer.FileSystem.S3
                     },
                     cancellationToken);
 
-                foreach (var directory in response.CommonPrefixes)
+                foreach (var directory in response.CommonPrefixes ?? [])
                 {
                     objects.Add(new S3DirectoryEntry(directory));
                 }
 
-                foreach (var s3Object in response.S3Objects)
+                foreach (var s3Object in response.S3Objects ?? [])
                 {
                     if (s3Object.Key.EndsWith("/") && s3Object.Key == prefix)
                     {
@@ -280,7 +280,7 @@ namespace FubarDev.FtpServer.FileSystem.S3
                     }
 
                     objects.Add(
-                        new S3FileEntry(s3Object.Key, s3Object.Size)
+                        new S3FileEntry(s3Object.Key, s3Object.Size ?? 0)
                         {
                             LastWriteTime = s3Object.LastModified,
                         });
@@ -288,7 +288,7 @@ namespace FubarDev.FtpServer.FileSystem.S3
 
                 marker = response.NextMarker;
             }
-            while (response.IsTruncated);
+            while (response.IsTruncated == true);
 
             return objects;
         }

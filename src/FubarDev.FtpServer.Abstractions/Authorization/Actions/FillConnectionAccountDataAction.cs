@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using FubarDev.FtpServer.AccountManagement;
 using FubarDev.FtpServer.Features;
 
+using Microsoft.AspNetCore.Http.Features;
+
 namespace FubarDev.FtpServer.Authorization.Actions
 {
     /// <summary>
@@ -35,7 +37,7 @@ namespace FubarDev.FtpServer.Authorization.Actions
         {
             var connection = _ftpConnectionAccessor.FtpConnection;
 
-            var authInfoFeature = connection.Features.Get<IAuthorizationInformationFeature>();
+            var authInfoFeature = connection.Features.GetRequiredFeature<IAuthorizationInformationFeature>();
 #pragma warning disable 618
             authInfoFeature.User = accountInformation.User;
 #pragma warning restore 618

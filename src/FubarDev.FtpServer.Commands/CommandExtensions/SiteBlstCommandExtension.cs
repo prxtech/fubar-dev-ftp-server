@@ -13,6 +13,7 @@ using FubarDev.FtpServer.BackgroundTransfer;
 using FubarDev.FtpServer.Features;
 using FubarDev.FtpServer.ServerCommands;
 
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 
 namespace FubarDev.FtpServer.CommandExtensions
@@ -104,7 +105,7 @@ namespace FubarDev.FtpServer.CommandExtensions
 
         private async Task<IFtpResponse?> ExecuteSend(IFtpDataConnection dataConnection, CancellationToken cancellationToken)
         {
-            var encoding = Connection.Features.Get<IEncodingFeature>().Encoding;
+            var encoding = Connection.Features.GetRequiredFeature<IEncodingFeature>().Encoding;
             var stream = dataConnection.Stream;
             using (var writer = new StreamWriter(stream, encoding, 4096, true)
             {

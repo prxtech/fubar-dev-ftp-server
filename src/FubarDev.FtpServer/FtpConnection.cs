@@ -266,8 +266,8 @@ namespace FubarDev.FtpServer
         [Obsolete("Query the information using the IEncodingFeature instead.")]
         public Encoding Encoding
         {
-            get => Features.Get<IEncodingFeature>().Encoding;
-            set => Features.Get<IEncodingFeature>().Encoding = value;
+            get => Features.GetRequiredFeature<IEncodingFeature>().Encoding;
+            set => Features.GetRequiredFeature<IEncodingFeature>().Encoding = value;
         }
 
         /// <inheritdoc />
@@ -281,7 +281,7 @@ namespace FubarDev.FtpServer
         /// <inheritdoc />
         [Obsolete("Query the information using the IConnectionFeature instead.")]
         public IPEndPoint LocalEndPoint
-            => Features.Get<IConnectionFeature>().LocalEndPoint;
+            => Features.GetRequiredFeature<IConnectionFeature>().LocalEndPoint;
 
         /// <inheritdoc />
         [Obsolete("Query the information using the IConnectionFeature instead.")]
@@ -293,7 +293,7 @@ namespace FubarDev.FtpServer
 
         /// <inheritdoc />
         [Obsolete("Query the information using the ISecureConnectionFeature instead.")]
-        public Stream OriginalStream => Features.Get<ISecureConnectionFeature>().OriginalStream;
+        public Stream OriginalStream => Features.GetRequiredFeature<ISecureConnectionFeature>().OriginalStream;
 
         /// <inheritdoc />
         [Obsolete("Not needed anymore.")]
@@ -337,7 +337,7 @@ namespace FubarDev.FtpServer
                 _idleCheck.SetChecks(checks);
 
                 // Connection information
-                var connectionFeature = Features.Get<IConnectionFeature>();
+                var connectionFeature = Features.GetRequiredFeature<IConnectionFeature>();
                 _logger?.LogInformation("Connected from {remoteIp}", connectionFeature.RemoteEndPoint);
 
                 await _streamWriterService.StartAsync(CancellationToken.None)
@@ -495,7 +495,7 @@ namespace FubarDev.FtpServer
         /// <inheritdoc/>
         public async Task<IFtpDataConnection> OpenDataConnectionAsync(TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            var dataConnectionFeature = Features.Get<IFtpDataConnectionFeature>();
+            var dataConnectionFeature = Features.GetRequiredFeature<IFtpDataConnectionFeature>();
             var dataConnection = await dataConnectionFeature.GetDataConnectionAsync(timeout ?? TimeSpan.FromSeconds(10), cancellationToken)
                .ConfigureAwait(false);
             return await _secureDataConnectionWrapper.WrapAsync(dataConnection)
@@ -510,7 +510,7 @@ namespace FubarDev.FtpServer
         [Obsolete("The data connection returned by OpenDataConnection is already encrypted.")]
         public Task<Stream> CreateEncryptedStream(Stream unencryptedStream)
         {
-            var createEncryptedStream = Features.Get<ISecureConnectionFeature>().CreateEncryptedStream;
+            var createEncryptedStream = Features.GetRequiredFeature<ISecureConnectionFeature>().CreateEncryptedStream;
             return createEncryptedStream(unencryptedStream);
         }
 
@@ -697,7 +697,7 @@ namespace FubarDev.FtpServer
             ChannelWriter<FtpCommand> commandWriter,
             CancellationToken cancellationToken)
         {
-            var collector = new FtpCommandCollector(() => Features.Get<IEncodingFeature>().Encoding);
+            var collector = new FtpCommandCollector(() => Features.GetRequiredFeature<IEncodingFeature>().Encoding);
 
             try
             {
@@ -955,13 +955,7 @@ namespace FubarDev.FtpServer
                     return 0;
                 }
 
-#if NETSTANDARD1_3
                 return await readTask.ConfigureAwait(false);
-#else
-                var result = readTask.Result;
-                readTask.Dispose();
-                return result;
-#endif
             }
 
             /// <inheritdoc />

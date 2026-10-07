@@ -11,35 +11,35 @@ using System.Threading.Tasks;
 using FluentFTP;
 
 using Xunit;
-using Xunit.Abstractions;
 
 namespace FubarDev.FtpServer.Tests
 {
     public class IntegrationTests : FtpServerTestsBase
     {
-        private IFtpClient? _client;
+        private AsyncFtpClient? _client;
 
         public IntegrationTests(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper)
         {
         }
 
-        public IFtpClient Client => _client ?? throw new InvalidOperationException();
+        public AsyncFtpClient Client => _client ?? throw new InvalidOperationException();
 
         /// <inheritdoc />
-        public override async Task InitializeAsync()
+        public override async ValueTask InitializeAsync()
         {
             await base.InitializeAsync();
-            _client = new FtpClient("127.0.0.1", Server.Port, "anonymous", "test@test.net");
-            await _client.ConnectAsync();
+            _client = new AsyncFtpClient("127.0.0.1", "anonymous", "test@test.net", Server.Port);
+            await _client.Connect(TestContext.Current.CancellationToken);
         }
 
         /// <inheritdoc />
-        public override async Task DisposeAsync()
+        public override async ValueTask DisposeAsync()
         {
             if (_client != null)
             {
-                await _client.DisconnectAsync();
+                await _client.Disconnect();
+                _client.Dispose();
             }
 
             await base.DisposeAsync();
@@ -54,11 +54,11 @@ namespace FubarDev.FtpServer.Tests
         [InlineData("设备管理-摄像机管理-w.txt")]
         public async Task TestUtf8FileNamesForUploadAsync(string fileName)
         {
-            await Client.UploadAsync(
+            await Client.UploadBytes(
                 Encoding.UTF8.GetBytes("Hello, this is a test!"),
                 fileName);
 
-            var fileNames = await Client.GetNameListingAsync();
+            var fileNames = await Client.GetNameListing();
             Assert.NotNull(fileNames);
             Assert.Collection(
                 fileNames,
@@ -79,7 +79,7 @@ namespace FubarDev.FtpServer.Tests
         [Fact]
         public async Task TestUploadAsync()
         {
-            await Client.UploadAsync(
+            await Client.UploadBytes(
                 Encoding.UTF8.GetBytes("Hello, this is a test!"),
                 "test.txt");
         }
@@ -91,11 +91,11 @@ namespace FubarDev.FtpServer.Tests
         [Fact]
         public async Task TestUploadAndDownloadAsync()
         {
-            await Client.UploadAsync(
+            await Client.UploadBytes(
                 Encoding.UTF8.GetBytes("Hello, this is a test!"),
                 "test.txt");
             var temp = new MemoryStream();
-            await Client.DownloadAsync(
+            await Client.DownloadStream(
                 temp,
                 "test.txt");
             var readData = Encoding.UTF8.GetString(temp.ToArray());

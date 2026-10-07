@@ -18,6 +18,7 @@ using FubarDev.FtpServer.ListFormatters;
 using FubarDev.FtpServer.ServerCommands;
 using FubarDev.FtpServer.Utilities;
 
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 
 namespace FubarDev.FtpServer.CommandHandlers
@@ -91,7 +92,7 @@ namespace FubarDev.FtpServer.CommandHandlers
         private async Task<IFtpResponse?> ProcessMlstAsync(FtpCommand command, CancellationToken cancellationToken)
         {
             var argument = command.Argument;
-            var fsFeature = Connection.Features.Get<IFileSystemFeature>();
+            var fsFeature = Connection.Features.GetRequiredFeature<IFileSystemFeature>();
             var path = fsFeature.Path.Clone();
             IUnixFileSystemEntry targetEntry;
 
@@ -110,7 +111,7 @@ namespace FubarDev.FtpServer.CommandHandlers
                 targetEntry = foundEntry.Entry;
             }
 
-            var authInfoFeature = Connection.Features.Get<IAuthorizationInformationFeature>();
+            var authInfoFeature = Connection.Features.GetRequiredFeature<IAuthorizationInformationFeature>();
             var authUser = authInfoFeature.FtpUser;
             if (authUser == null)
             {
@@ -124,7 +125,7 @@ namespace FubarDev.FtpServer.CommandHandlers
         private async Task<IFtpResponse?> ProcessMlsdAsync(FtpCommand command, CancellationToken cancellationToken)
         {
             var argument = command.Argument;
-            var fsFeature = Connection.Features.Get<IFileSystemFeature>();
+            var fsFeature = Connection.Features.GetRequiredFeature<IFileSystemFeature>();
             var path = fsFeature.Path.Clone();
             IUnixDirectoryEntry? dirEntry;
 
@@ -158,7 +159,7 @@ namespace FubarDev.FtpServer.CommandHandlers
                     cancellationToken)
                .ConfigureAwait(false);
 
-            var authInfoFeature = Connection.Features.Get<IAuthorizationInformationFeature>();
+            var authInfoFeature = Connection.Features.GetRequiredFeature<IAuthorizationInformationFeature>();
             var authUser = authInfoFeature.FtpUser;
             if (authUser == null)
             {
@@ -194,7 +195,7 @@ namespace FubarDev.FtpServer.CommandHandlers
             IMlstFactsFeature factsFeature,
             CancellationToken cancellationToken)
         {
-            var encoding = Connection.Features.Get<IEncodingFeature>().Encoding;
+            var encoding = Connection.Features.GetRequiredFeature<IEncodingFeature>().Encoding;
             var stream = dataConnection.Stream;
             using (var writer = new StreamWriter(stream, encoding, 4096, true)
             {

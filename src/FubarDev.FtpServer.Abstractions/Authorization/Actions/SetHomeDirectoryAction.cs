@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using FubarDev.FtpServer.Features;
 using FubarDev.FtpServer.FileSystem;
 
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -53,7 +54,7 @@ namespace FubarDev.FtpServer.Authorization.Actions
         public async Task AuthorizedAsync(IAccountInformation accountInformation, CancellationToken cancellationToken)
         {
             var connection = _ftpConnectionAccessor.FtpConnection;
-            var fsFeature = connection.Features.Get<IFileSystemFeature>();
+            var fsFeature = connection.Features.GetRequiredFeature<IFileSystemFeature>();
             var fileSystem = fsFeature.FileSystem;
             var directories = _accountDirectoryQuery.GetDirectories(accountInformation);
             Stack<IUnixDirectoryEntry>? path = null;

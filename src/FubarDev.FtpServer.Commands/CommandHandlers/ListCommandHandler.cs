@@ -22,6 +22,7 @@ using FubarDev.FtpServer.ListFormatters;
 using FubarDev.FtpServer.ServerCommands;
 using FubarDev.FtpServer.Utilities;
 
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 
 namespace FubarDev.FtpServer.CommandHandlers
@@ -68,7 +69,7 @@ namespace FubarDev.FtpServer.CommandHandlers
 
         private async Task<IFtpResponse?> ExecuteSend(IFtpDataConnection dataConnection, FtpCommand command, CancellationToken cancellationToken)
         {
-            var encodingFeature = Connection.Features.Get<IEncodingFeature>();
+            var encodingFeature = Connection.Features.GetRequiredFeature<IEncodingFeature>();
 
             // Parse arguments in a way that's compatible with broken FTP clients
             var argument = new ListArguments(command.Argument);
@@ -103,7 +104,7 @@ namespace FubarDev.FtpServer.CommandHandlers
             // Parse the given path to determine the mask (e.g. when information about a file was requested)
             var directoriesToProcess = new Queue<DirectoryQueueItem>();
 
-            var fsFeature = Connection.Features.Get<IFileSystemFeature>();
+            var fsFeature = Connection.Features.GetRequiredFeature<IFileSystemFeature>();
 
             // Use braces to avoid the definition of mask and path in the following parts
             // of this function.

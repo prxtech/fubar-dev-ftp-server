@@ -15,6 +15,8 @@ using FubarDev.FtpServer.Authentication;
 using FubarDev.FtpServer.Features;
 using FubarDev.FtpServer.Localization;
 
+using Microsoft.AspNetCore.Http.Features;
+
 namespace FubarDev.FtpServer.Authorization
 {
     /// <summary>
@@ -102,7 +104,7 @@ namespace FubarDev.FtpServer.Authorization
             _userName = userIdentifier;
             _needsPassword = true;
 
-            var authInfoFeature = Connection.Features.Get<IAuthorizationInformationFeature>();
+            var authInfoFeature = Connection.Features.GetRequiredFeature<IAuthorizationInformationFeature>();
 #pragma warning disable 618
 #pragma warning disable 612
             authInfoFeature.User = new UnauthenticatedUser(userIdentifier);

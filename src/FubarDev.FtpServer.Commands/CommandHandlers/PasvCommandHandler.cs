@@ -17,6 +17,8 @@ using FubarDev.FtpServer.Features;
 using FubarDev.FtpServer.Features.Impl;
 using FubarDev.FtpServer.ServerCommands;
 
+using Microsoft.AspNetCore.Http.Features;
+
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
@@ -96,7 +98,7 @@ namespace FubarDev.FtpServer.CommandHandlers
 
             var dataConnectionFeature = await _dataConnectionFeatureFactory.CreateFeatureAsync(command, addressFamily, cancellationToken)
                .ConfigureAwait(false);
-            var oldFeature = Connection.Features.Get<IFtpDataConnectionFeature>();
+            var oldFeature = Connection.Features.GetRequiredFeature<IFtpDataConnectionFeature>();
             try
             {
                 await oldFeature.DisposeAsync();

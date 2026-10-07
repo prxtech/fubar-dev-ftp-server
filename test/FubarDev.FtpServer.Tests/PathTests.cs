@@ -2,15 +2,13 @@
 // Copyright (c) Fubar Development Junker. All rights reserved.
 // </copyright>
 
-using Microsoft.DotNet.PlatformAbstractions;
-
 using Xunit;
 
 namespace FubarDev.FtpServer.Tests
 {
     public class PathTests
     {
-        [SkippableTheory]
+        [Theory]
         [InlineData(null, null)]
         [InlineData(null, "")]
         [InlineData("a", "a")]
@@ -32,21 +30,21 @@ namespace FubarDev.FtpServer.Tests
 
         // Will fail under .NET Framework
         // [InlineData(@" \.\a", @"\ \.\a")]
-        public void TestRootRemovalWindows(string expected, string input)
+        public void TestRootRemovalWindows(string? expected, string? input)
         {
-            Skip.If(RuntimeEnvironment.OperatingSystemPlatform != Platform.Windows, "Works only on Windows");
+            Assert.SkipUnless(System.OperatingSystem.IsWindows(), "Works only on Windows");
             Assert.Equal(expected, input.RemoveRoot());
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(null, null)]
         [InlineData(null, "")]
         [InlineData("a", "a")]
         [InlineData("a", "/a")]
         [InlineData("a", "//a")]
-        public void TestRootRemovalNonWindows(string expected, string input)
+        public void TestRootRemovalNonWindows(string? expected, string? input)
         {
-            Skip.If(RuntimeEnvironment.OperatingSystemPlatform == Platform.Windows, "Works only on non-Windows platforms");
+            Assert.SkipWhen(System.OperatingSystem.IsWindows(), "Works only on non-Windows platforms");
             Assert.Equal(expected, input.RemoveRoot());
         }
     }

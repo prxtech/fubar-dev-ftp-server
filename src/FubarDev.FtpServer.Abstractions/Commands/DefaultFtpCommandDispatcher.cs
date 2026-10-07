@@ -14,6 +14,7 @@ using FubarDev.FtpServer.ServerCommands;
 
 using JetBrains.Annotations;
 
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 
 namespace FubarDev.FtpServer.Commands
@@ -107,7 +108,7 @@ namespace FubarDev.FtpServer.Commands
         /// <returns>The translated message.</returns>
         private string T(string message)
         {
-            return _connection.Features.Get<ILocalizationFeature>().Catalog.GetString(message);
+            return _connection.Features.GetRequiredFeature<ILocalizationFeature>().Catalog.GetString(message);
         }
 
         /// <summary>
@@ -119,7 +120,7 @@ namespace FubarDev.FtpServer.Commands
         [StringFormatMethod("message")]
         private string T(string message, params object[] args)
         {
-            return _connection.Features.Get<ILocalizationFeature>().Catalog.GetString(message, args);
+            return _connection.Features.GetRequiredFeature<ILocalizationFeature>().Catalog.GetString(message, args);
         }
 
         private Task ExecuteBackgroundCommandAsync(
@@ -178,7 +179,7 @@ namespace FubarDev.FtpServer.Commands
                 return;
             }
 
-            var serverCommandFeature = _connection.Features.Get<IServerCommandFeature>();
+            var serverCommandFeature = _connection.Features.GetRequiredFeature<IServerCommandFeature>();
             await serverCommandFeature.ServerCommandWriter
                .WriteAsync(new SendResponseServerCommand(response), cancellationToken)
                .ConfigureAwait(false);

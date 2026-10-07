@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using FubarDev.FtpServer.Authentication;
 using FubarDev.FtpServer.Features;
 
+using Microsoft.AspNetCore.Http.Features;
+
 namespace FubarDev.FtpServer.DataConnection
 {
     /// <summary>
@@ -41,7 +43,7 @@ namespace FubarDev.FtpServer.DataConnection
         public async Task<IFtpDataConnection> WrapAsync(IFtpDataConnection dataConnection)
         {
             var connection = _connectionAccessor.FtpConnection;
-            var secureConnectionFeature = connection.Features.Get<ISecureConnectionFeature>();
+            var secureConnectionFeature = connection.Features.GetRequiredFeature<ISecureConnectionFeature>();
             var newStream = await secureConnectionFeature.CreateEncryptedStream(dataConnection.Stream)
                .ConfigureAwait(false);
 

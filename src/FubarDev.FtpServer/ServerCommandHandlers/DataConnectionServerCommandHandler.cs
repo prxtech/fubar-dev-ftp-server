@@ -10,6 +10,7 @@ using FubarDev.FtpServer.Events;
 using FubarDev.FtpServer.Features;
 using FubarDev.FtpServer.ServerCommands;
 
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 
 namespace FubarDev.FtpServer.ServerCommandHandlers
@@ -39,8 +40,8 @@ namespace FubarDev.FtpServer.ServerCommandHandlers
         public async Task ExecuteAsync(DataConnectionServerCommand command, CancellationToken cancellationToken)
         {
             var connection = _connectionAccessor.FtpConnection;
-            var serverCommandWriter = connection.Features.Get<IServerCommandFeature>().ServerCommandWriter;
-            var localizationFeature = connection.Features.Get<ILocalizationFeature>();
+            var serverCommandWriter = connection.Features.GetRequiredFeature<IServerCommandFeature>().ServerCommandWriter;
+            var localizationFeature = connection.Features.GetRequiredFeature<ILocalizationFeature>();
 
             using (new ConnectionKeepAlive(connection, command.Command))
             {
@@ -98,7 +99,7 @@ namespace FubarDev.FtpServer.ServerCommandHandlers
                 IFtpConnection connection,
                 FtpCommand command)
             {
-                _eventHost = connection.Features.Get<IFtpConnectionEventHost>();
+                _eventHost = connection.Features.GetRequiredFeature<IFtpConnectionEventHost>();
                 _eventHost.PublishEvent(new FtpConnectionDataTransferStartedEvent(_transferId, command));
             }
 

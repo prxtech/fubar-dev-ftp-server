@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using FubarDev.FtpServer.Commands;
 using FubarDev.FtpServer.Features;
 
+using Microsoft.AspNetCore.Http.Features;
+
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
@@ -40,7 +42,7 @@ namespace FubarDev.FtpServer.CommandHandlers
 
             if (response.Code == 200)
             {
-                var transferModeFeature = Connection.Features.Get<ITransferConfigurationFeature>();
+                var transferModeFeature = Connection.Features.GetRequiredFeature<ITransferConfigurationFeature>();
                 transferModeFeature.TransferMode = transferMode;
             }
 

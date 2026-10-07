@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 
 using FubarDev.FtpServer.Features;
 
+using Microsoft.AspNetCore.Http.Features;
+
 namespace FubarDev.FtpServer.CommandExtensions
 {
     /// <summary>
@@ -33,7 +35,7 @@ namespace FubarDev.FtpServer.CommandExtensions
         /// <inheritdoc />
         public override Task<IFtpResponse?> Process(FtpCommand command, CancellationToken cancellationToken)
         {
-            var encodingFeature = Connection.Features.Get<IEncodingFeature>();
+            var encodingFeature = Connection.Features.GetRequiredFeature<IEncodingFeature>();
             switch (command.Argument.ToUpperInvariant())
             {
                 case "ON": // Compatibility feature...

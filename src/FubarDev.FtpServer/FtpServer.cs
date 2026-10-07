@@ -20,6 +20,7 @@ using FubarDev.FtpServer.Features;
 using FubarDev.FtpServer.Localization;
 using FubarDev.FtpServer.ServerCommands;
 
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -200,7 +201,7 @@ namespace FubarDev.FtpServer
             {
                 try
                 {
-                    var keepAliveFeature = connection.Features.Get<IFtpConnectionStatusCheck>();
+                    var keepAliveFeature = connection.Features.GetRequiredFeature<IFtpConnectionStatusCheck>();
                     var isAlive = keepAliveFeature.CheckIfAlive();
                     if (isAlive)
                     {
@@ -208,7 +209,7 @@ namespace FubarDev.FtpServer
                         continue;
                     }
 
-                    var serverCommandFeature = connection.Features.Get<IServerCommandFeature>();
+                    var serverCommandFeature = connection.Features.GetRequiredFeature<IServerCommandFeature>();
 
                     // Just ignore a failed write operation. We'll try again later.
                     serverCommandFeature.ServerCommandWriter.TryWrite(
@@ -305,7 +306,7 @@ namespace FubarDev.FtpServer
                 }
 
                 // Send initial message
-                var serverCommandWriter = connection.Features.Get<IServerCommandFeature>().ServerCommandWriter;
+                var serverCommandWriter = connection.Features.GetRequiredFeature<IServerCommandFeature>().ServerCommandWriter;
 
                 var blockConnection = MaxActiveConnections != 0
                     && _statistics.ActiveConnections >= MaxActiveConnections;

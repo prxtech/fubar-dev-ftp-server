@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using FubarDev.FtpServer.Features;
 using FubarDev.FtpServer.FileSystem;
 
+using Microsoft.AspNetCore.Http.Features;
+
 namespace FubarDev.FtpServer.CommandExtensions
 {
     /// <summary>
@@ -94,7 +96,7 @@ namespace FubarDev.FtpServer.CommandExtensions
                 return new FtpResponse(501, T("No file name."));
             }
 
-            var fsFeature = Connection.Features.Get<IFileSystemFeature>();
+            var fsFeature = Connection.Features.GetRequiredFeature<IFileSystemFeature>();
             var currentPath = fsFeature.Path.Clone();
             var foundEntry = await fsFeature.FileSystem.SearchEntryAsync(currentPath, path, cancellationToken).ConfigureAwait(false);
             if (foundEntry?.Entry == null)
@@ -125,7 +127,7 @@ namespace FubarDev.FtpServer.CommandExtensions
                 return new FtpResponse(501, T("No file name."));
             }
 
-            var fsFeature = Connection.Features.Get<IFileSystemFeature>();
+            var fsFeature = Connection.Features.GetRequiredFeature<IFileSystemFeature>();
             var currentPath = fsFeature.Path.Clone();
             var foundEntry = await fsFeature.FileSystem.SearchEntryAsync(currentPath, path, cancellationToken).ConfigureAwait(false);
             if (foundEntry?.Entry == null)

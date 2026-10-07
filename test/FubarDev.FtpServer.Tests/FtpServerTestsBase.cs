@@ -1,4 +1,4 @@
-﻿// <copyright file="FtpServerTestsBase.cs" company="Fubar Development Junker">
+// <copyright file="FtpServerTestsBase.cs" company="Fubar Development Junker">
 // Copyright (c) Fubar Development Junker. All rights reserved.
 // </copyright>
 
@@ -6,10 +6,11 @@ using System;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
+using Meziantou.Extensions.Logging.Xunit.v3;
+
 using Microsoft.Extensions.Logging;
 
 using Xunit;
-using Xunit.Abstractions;
 
 namespace FubarDev.FtpServer.Tests
 {
@@ -39,14 +40,14 @@ namespace FubarDev.FtpServer.Tests
         public IServiceProvider ServiceProvider => _serviceProvider ?? throw new InvalidOperationException();
 
         /// <inheritdoc />
-        public virtual Task InitializeAsync()
+        public virtual async ValueTask InitializeAsync()
         {
             var services = new ServiceCollection()
                .AddLogging(
                     lb =>
                     {
                         // lb.AddConsole();
-                        lb.AddXunit(_testOutputHelper, LogLevel.Trace);
+                        lb.AddProvider(new XUnitLoggerProvider(_testOutputHelper));
                         lb.SetMinimumLevel(LogLevel.Trace);
                         lb.AddFilter("System", LogLevel.Warning);
                         lb.AddFilter("Microsoft", LogLevel.Warning);
@@ -57,17 +58,19 @@ namespace FubarDev.FtpServer.Tests
             services = Configure(services);
             _serviceProvider = services.BuildServiceProvider(true);
             _server = _serviceProvider.GetRequiredService<IFtpServer>();
-            return _server.StartAsync(default);
+            await _server.StartAsync(default);
         }
 
         /// <inheritdoc />
-        public virtual async Task DisposeAsync()
+        public virtual async ValueTask DisposeAsync()
         {
             await Server.StopAsync(default).ConfigureAwait(false);
             if (_serviceProvider != null)
             {
                 await _serviceProvider.DisposeAsync();
             }
+
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>

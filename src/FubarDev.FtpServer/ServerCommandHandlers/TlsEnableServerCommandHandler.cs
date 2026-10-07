@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using FubarDev.FtpServer.Features;
 using FubarDev.FtpServer.ServerCommands;
 
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -44,8 +45,8 @@ namespace FubarDev.FtpServer.ServerCommandHandlers
         public async Task ExecuteAsync(TlsEnableServerCommand command, CancellationToken cancellationToken)
         {
             var connection = _connectionAccessor.FtpConnection;
-            var serverCommandsFeature = connection.Features.Get<IServerCommandFeature>();
-            var localizationFeature = connection.Features.Get<ILocalizationFeature>();
+            var serverCommandsFeature = connection.Features.GetRequiredFeature<IServerCommandFeature>();
+            var localizationFeature = connection.Features.GetRequiredFeature<ILocalizationFeature>();
 
             if (_serverCertificate == null)
             {
@@ -86,10 +87,10 @@ namespace FubarDev.FtpServer.ServerCommandHandlers
             ILogger? logger,
             CancellationToken cancellationToken)
         {
-            var networkStreamFeature = connection.Features.Get<INetworkStreamFeature>();
+            var networkStreamFeature = connection.Features.GetRequiredFeature<INetworkStreamFeature>();
             var service = networkStreamFeature.SecureConnectionAdapter;
 
-            var secureConnectionFeature = connection.Features.Get<ISecureConnectionFeature>();
+            var secureConnectionFeature = connection.Features.GetRequiredFeature<ISecureConnectionFeature>();
             logger?.LogTrace("Enable SslStream");
             await service.EnableSslStreamAsync(certificate, cancellationToken)
                .ConfigureAwait(false);

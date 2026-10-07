@@ -4,15 +4,14 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
-#if !NETSTANDARD1_3
 using System.Net.Sockets;
-#endif
 using System.Threading;
 using System.Threading.Tasks;
 
 using FubarDev.FtpServer.Features;
 using FubarDev.FtpServer.FileSystem.Error;
 
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 
 namespace FubarDev.FtpServer
@@ -38,7 +37,7 @@ namespace FubarDev.FtpServer
             ILogger? logger,
             CancellationToken cancellationToken)
         {
-            var localizationFeature = connection.Features.Get<ILocalizationFeature>();
+            var localizationFeature = connection.Features.GetRequiredFeature<ILocalizationFeature>();
             IFtpResponse? response;
             try
             {
@@ -62,9 +61,7 @@ namespace FubarDev.FtpServer
                         logger?.LogWarning(validationException.Message);
                         break;
 
-#if !NETSTANDARD1_3
                     case SocketException se when se.ErrorCode == (int)SocketError.ConnectionAborted:
-#endif
                     case OperationCanceledException _:
                         response = new FtpResponse(426, localizationFeature.Catalog.GetString("Connection closed; transfer aborted."));
                         logger?.LogTrace("Command {command} cancelled with response {response}", command, response);

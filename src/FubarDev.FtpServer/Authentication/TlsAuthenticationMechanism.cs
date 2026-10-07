@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using FubarDev.FtpServer.Features;
 using FubarDev.FtpServer.ServerCommands;
 
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -75,7 +76,7 @@ namespace FubarDev.FtpServer.Authentication
         /// <inheritdoc />
         public override async Task<IFtpResponse> HandleAuthAsync(string methodIdentifier, CancellationToken cancellationToken)
         {
-            var serverCommandWriter = Connection.Features.Get<IServerCommandFeature>().ServerCommandWriter;
+            var serverCommandWriter = Connection.Features.GetRequiredFeature<IServerCommandFeature>().ServerCommandWriter;
             var hostSelector = Connection.ConnectionServices.GetRequiredService<IFtpHostSelector>();
 
             if (hostSelector.SelectedHost.Certificate == null)
@@ -147,7 +148,7 @@ namespace FubarDev.FtpServer.Authentication
             }
             else
             {
-                var secureConnectionFeature = Connection.Features.Get<ISecureConnectionFeature>();
+                var secureConnectionFeature = Connection.Features.GetRequiredFeature<ISecureConnectionFeature>();
                 switch (protCode.ToUpperInvariant())
                 {
                     case "C":

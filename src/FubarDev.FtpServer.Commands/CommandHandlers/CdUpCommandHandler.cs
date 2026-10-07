@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using FubarDev.FtpServer.Commands;
 using FubarDev.FtpServer.Features;
 
+using Microsoft.AspNetCore.Http.Features;
+
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
@@ -23,7 +25,7 @@ namespace FubarDev.FtpServer.CommandHandlers
         /// <inheritdoc/>
         public override Task<IFtpResponse?> Process(FtpCommand command, CancellationToken cancellationToken)
         {
-            var fsFeature = Connection.Features.Get<IFileSystemFeature>();
+            var fsFeature = Connection.Features.GetRequiredFeature<IFileSystemFeature>();
             if (fsFeature.CurrentDirectory.IsRoot)
             {
                 return Task.FromResult<IFtpResponse?>(new FtpResponse(550, T("Not a valid directory.")));

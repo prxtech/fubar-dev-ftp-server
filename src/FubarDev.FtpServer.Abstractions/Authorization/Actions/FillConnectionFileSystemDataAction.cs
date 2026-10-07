@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using FubarDev.FtpServer.Features;
 using FubarDev.FtpServer.FileSystem;
 
+using Microsoft.AspNetCore.Http.Features;
+
 namespace FubarDev.FtpServer.Authorization.Actions
 {
     /// <summary>
@@ -41,7 +43,7 @@ namespace FubarDev.FtpServer.Authorization.Actions
         {
             var connection = _ftpConnectionAccessor.FtpConnection;
 
-            var fsFeature = connection.Features.Get<IFileSystemFeature>();
+            var fsFeature = connection.Features.GetRequiredFeature<IFileSystemFeature>();
             fsFeature.FileSystem = await _fileSystemFactory
                .Create(accountInformation)
                .ConfigureAwait(false);

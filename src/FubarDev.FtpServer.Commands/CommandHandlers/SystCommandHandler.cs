@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using FubarDev.FtpServer.Commands;
 using FubarDev.FtpServer.Features;
 
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Options;
 
 namespace FubarDev.FtpServer.CommandHandlers
@@ -40,7 +41,7 @@ namespace FubarDev.FtpServer.CommandHandlers
         /// <inheritdoc/>
         public override Task<IFtpResponse?> Process(FtpCommand command, CancellationToken cancellationToken)
         {
-            var transferMode = Connection.Features.Get<ITransferConfigurationFeature>().TransferMode;
+            var transferMode = Connection.Features.GetRequiredFeature<ITransferConfigurationFeature>().TransferMode;
             return Task.FromResult<IFtpResponse?>(new FtpResponse(215, T("{0} Type: {1}", _operatingSystem, transferMode)));
         }
     }
