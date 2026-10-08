@@ -36,8 +36,11 @@ alternate-stream syntax) and `/`. The resolved full path must also stay inside t
 (`SafePath`, `src/FubarDev.FtpServer.FileSystem.DotNet/SafePath.cs`).
 
 `DotNetFileSystemOptions.RootPath` is **required** (no silent fallback to the temp directory).
-Per-account roots from `IAccountDirectoryQuery` (user names, anonymous e-mail addresses) must
-resolve inside `RootPath`, otherwise login to the file system fails with `553`.
+Per-account roots from `IAccountDirectoryQuery` (user names, anonymous e-mail addresses) are
+resolved segment by segment: every segment must be a plain file name (no `.`, `..`, separators
+inside a segment) and at least one segment is required. An account therefore always gets its own
+directory strictly below `RootPath`: never the shared root itself (`.`, `a/..`) and never another
+account's directory (`camera-1/../camera-2`). Otherwise login to the file system fails with `553`.
 
 Not covered: symbolic links already present below the root are followed.
 

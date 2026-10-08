@@ -45,6 +45,33 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
         }
 
         /// <summary>
+        /// Resolves an account root (e.g. built from a user name or e-mail address) to a directory below the root.
+        /// </summary>
+        /// <param name="rootFullPath">The full path of the configured root directory.</param>
+        /// <param name="accountRoot">The relative account root. Every segment must be a plain file name.</param>
+        /// <returns>The full path of the account root, always strictly below <paramref name="rootFullPath"/>.</returns>
+        /// <exception cref="FileNameNotAllowedException">A segment is not a plain file name or no segment is given.</exception>
+        public static string GetAccountRootPath(string rootFullPath, string accountRoot)
+        {
+            // Segment-wise so "." or "a/.." can't resolve to the shared root and "a/../b" can't reach another account.
+            var segments = accountRoot.Split(
+                new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar },
+                StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length == 0)
+            {
+                throw new FileNameNotAllowedException($"Invalid account root: {accountRoot}");
+            }
+
+            var fullPath = rootFullPath;
+            foreach (var segment in segments)
+            {
+                fullPath = GetChildPath(rootFullPath, fullPath, segment);
+            }
+
+            return fullPath;
+        }
+
+        /// <summary>
         /// Ensures that <paramref name="fullPath"/> is <paramref name="rootFullPath"/> or below it.
         /// </summary>
         /// <param name="rootFullPath">The full path of the root directory.</param>

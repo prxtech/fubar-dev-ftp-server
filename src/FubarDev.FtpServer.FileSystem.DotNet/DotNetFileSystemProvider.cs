@@ -60,9 +60,8 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
             var directories = _accountDirectoryQuery.GetDirectories(accountInformation);
             if (!string.IsNullOrEmpty(directories.RootPath))
             {
-                // Account roots come from user names/e-mail addresses: never let them leave the configured root.
-                path = Path.GetFullPath(Path.Combine(path, directories.RootPath));
-                SafePath.EnsureWithinRoot(_rootPath, path);
+                // Account roots come from user names/e-mail addresses: keep each account in its own directory.
+                path = SafePath.GetAccountRootPath(_rootPath, directories.RootPath);
             }
 
             _logger?.LogDebug("The root directory for {userName} is {rootPath}", accountInformation.FtpUser.Identity.Name, path);

@@ -142,7 +142,12 @@ namespace FubarDev.FtpServer.Tests.Security
         [InlineData("..")]
         [InlineData("../other")]
         [InlineData("a/../../other")]
-        public async Task ProviderRejectsAccountRootOutsideRootPath(string accountRoot)
+        [InlineData(".")]
+        [InlineData("/")]
+        [InlineData("a/..")]
+        [InlineData("camera-1/../camera-2")]
+        [InlineData("users/./camera-1")]
+        public async Task ProviderRejectsAccountRootOutsideOwnDirectory(string accountRoot)
         {
             var provider = CreateProvider(_root, accountRoot);
 
@@ -159,6 +164,16 @@ namespace FubarDev.FtpServer.Tests.Security
 
             Assert.True(Directory.Exists(Path.Combine(_root, "camera-1")));
             Assert.NotNull(fileSystem.Root);
+        }
+
+        [Fact]
+        public async Task ProviderAcceptsNestedAccountRoot()
+        {
+            var provider = CreateProvider(_root, "users/camera-1");
+
+            await provider.Create(new TestAccountInformation("camera-1"));
+
+            Assert.True(Directory.Exists(Path.Combine(_root, "users", "camera-1")));
         }
 
         public void Dispose()
