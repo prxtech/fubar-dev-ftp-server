@@ -74,6 +74,8 @@ namespace FubarDev.FtpServer
 
         private readonly int? _dataPort;
 
+        private readonly int _maxCommandLineLength;
+
         private readonly ILogger<FtpConnection>? _logger;
 
         private readonly IPEndPoint _remoteEndPoint;
@@ -158,6 +160,7 @@ namespace FubarDev.FtpServer
             ConnectionId = "FTP-" + Guid.NewGuid().ToString("N");
 
             _dataPort = portOptions.Value.DataPort;
+            _maxCommandLineLength = options.Value.MaxCommandLineLength;
 #pragma warning disable 612
             _keepAlive = new FtpConnectionKeepAlive(this);
 #pragma warning restore 612
@@ -697,7 +700,9 @@ namespace FubarDev.FtpServer
             ChannelWriter<FtpCommand> commandWriter,
             CancellationToken cancellationToken)
         {
-            var collector = new FtpCommandCollector(() => Features.GetRequiredFeature<IEncodingFeature>().Encoding);
+            var collector = new FtpCommandCollector(
+                () => Features.GetRequiredFeature<IEncodingFeature>().Encoding,
+                _maxCommandLineLength);
 
             try
             {
@@ -737,6 +742,14 @@ namespace FubarDev.FtpServer
             {
                 // Most likely closed by server.
                 _logger?.LogWarning("Connection lost or closed by server");
+                Abort();
+            }
+            catch (FtpCommandTooLongException ex)
+            {
+                _logger?.LogWarning(
+                    "Closing connection from {remoteIp}: {message}",
+                    Features.GetRequiredFeature<IConnectionFeature>().RemoteEndPoint,
+                    ex.Message);
                 Abort();
             }
             catch (Exception ex) when (ex.Is<OperationCanceledException>())

@@ -7,9 +7,6 @@
 
 using System;
 using System.Collections.Generic;
-#if DEBUG
-using System.Diagnostics;
-#endif
 using System.Linq;
 using System.Text;
 
@@ -26,16 +23,27 @@ namespace FubarDev.FtpServer
 
         private readonly List<byte[]> _buffer = new List<byte[]>();
 
+        private readonly int _maxLineLength;
+
+        private int _pendingLength;
+
         private bool _skipLineFeed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FtpCommandCollector"/> class.
         /// </summary>
         /// <param name="getActiveEncodingFunc">The delegate to get the current encoding for.</param>
-        public FtpCommandCollector(Func<Encoding> getActiveEncodingFunc)
+        /// <param name="maxLineLength">The maximum length of a command line in bytes (excluding the line terminator).</param>
+        public FtpCommandCollector(Func<Encoding> getActiveEncodingFunc, int maxLineLength = FtpConnectionOptions.DefaultMaxCommandLineLength)
         {
+            if (maxLineLength <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(maxLineLength), maxLineLength, "The maximum line length must be positive.");
+            }
+
             _telnetInputParser = new FtpTelnetInputParser(this);
             _getActiveEncodingFunc = getActiveEncodingFunc;
+            _maxLineLength = maxLineLength;
         }
 
         /// <summary>
@@ -53,18 +61,9 @@ namespace FubarDev.FtpServer
         /// </summary>
         /// <param name="buffer">The buffer to collect the data from.</param>
         /// <returns>The found <see cref="FtpCommand"/>s.</returns>
+        /// <exception cref="FtpCommandTooLongException">A command line exceeds the maximum line length.</exception>
         public IEnumerable<FtpCommand> Collect(ReadOnlySpan<byte> buffer)
         {
-#if DEBUG
-            var collectedData = new StringBuilder();
-            for (var i = 0; i < buffer.Length; i++)
-            {
-                collectedData.Append(buffer[i].ToString("X2"));
-            }
-
-            Debug.WriteLine("Collected data: {0}", collectedData);
-#endif
-
             var commands = new List<FtpCommand>();
             commands.AddRange(_telnetInputParser.Collect(buffer));
             return commands;
@@ -98,7 +97,7 @@ namespace FubarDev.FtpServer
                 if (carriageReturnPos != 0)
                 {
                     // Store the found data into the buffer
-                    _buffer.Add(buffer.Slice(0, carriageReturnPos).ToArray());
+                    AddPending(buffer.Slice(0, carriageReturnPos));
                 }
 
                 if (_buffer.Count != 0)
@@ -114,6 +113,7 @@ namespace FubarDev.FtpServer
                     }
 
                     _buffer.Clear();
+                    _pendingLength = 0;
 
                     commands.Add(CreateFtpCommand(data));
                 }
@@ -139,10 +139,21 @@ namespace FubarDev.FtpServer
 
             if (buffer.Length != 0)
             {
-                _buffer.Add(buffer.ToArray());
+                AddPending(buffer);
             }
 
             return commands;
+        }
+
+        private void AddPending(ReadOnlySpan<byte> data)
+        {
+            _pendingLength += data.Length;
+            if (_pendingLength > _maxLineLength)
+            {
+                throw new FtpCommandTooLongException(_maxLineLength);
+            }
+
+            _buffer.Add(data.ToArray());
         }
 
         private FtpCommand CreateFtpCommand(byte[] command)
