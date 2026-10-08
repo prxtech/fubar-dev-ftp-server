@@ -10,8 +10,11 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
     public class DotNetFileSystemOptions
     {
         /// <summary>
-        /// Gets or sets the root path for all users.
+        /// Gets or sets the root path for all users. Required.
         /// </summary>
+        /// <remarks>
+        /// No entry (including per-account roots) can be created or accessed outside this directory.
+        /// </remarks>
         public string? RootPath { get; set; }
 
         /// <summary>

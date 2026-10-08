@@ -27,11 +27,26 @@ Applies before authentication.
 
 Tests: `Security/CommandLineLengthTests.cs`.
 
+## File system root confinement (DotNet provider)
+
+Every name passed to `DotNetFileSystem` (lookup, create, mkdir, rename target) must be a single
+plain file name: `.`, `..`, rooted names and characters invalid in file names on the host OS are
+rejected with `553` (`FileNameNotAllowedException`). On Windows this covers `\`, `:` (drive and
+alternate-stream syntax) and `/`. The resolved full path must also stay inside the root
+(`SafePath`, `src/FubarDev.FtpServer.FileSystem.DotNet/SafePath.cs`).
+
+`DotNetFileSystemOptions.RootPath` is **required** (no silent fallback to the temp directory).
+Per-account roots from `IAccountDirectoryQuery` (user names, anonymous e-mail addresses) must
+resolve inside `RootPath`, otherwise login to the file system fails with `553`.
+
+Not covered: symbolic links already present below the root are followed.
+
+Tests: `Security/DotNetFileSystemPathTests.cs`.
+
 ## Open items
 
-Tracked in the hardening plan (`data/docs/`): path traversal on Windows, TLS protocol pinning and
-`RequireTls`, brute-force throttling, connection limits, `REST` offset validation, account root
-sanitisation.
+Tracked in the hardening plan (`data/docs/`): TLS protocol pinning and `RequireTls`, brute-force
+throttling, connection limits, `REST` offset validation, symlink handling.
 
 ## Verify
 

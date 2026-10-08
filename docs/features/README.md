@@ -15,4 +15,4 @@ Infrastructure:
 
 Security:
 
-- [x] [security-hardening.md](security-hardening.md) — FTP bounce protection, command line length limit
+- [x] [security-hardening.md](security-hardening.md) — FTP bounce protection, command line length limit, file system root confinement

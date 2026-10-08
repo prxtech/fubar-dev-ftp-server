@@ -28,6 +28,7 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
 
         private readonly int _streamBufferSize;
         private readonly bool _flushStream;
+        private readonly string _rootFullPath;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotNetFileSystem"/> class.
@@ -60,7 +61,9 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
         public DotNetFileSystem(string rootPath, bool allowNonEmptyDirectoryDelete, int streamBufferSize, bool flushStream)
         {
             FileSystemEntryComparer = StringComparer.OrdinalIgnoreCase;
-            Root = new DotNetDirectoryEntry(Directory.CreateDirectory(rootPath), true, allowNonEmptyDirectoryDelete);
+            var rootInfo = Directory.CreateDirectory(rootPath);
+            _rootFullPath = rootInfo.FullName;
+            Root = new DotNetDirectoryEntry(rootInfo, true, allowNonEmptyDirectoryDelete);
             SupportsNonEmptyDirectoryDelete = allowNonEmptyDirectoryDelete;
             _streamBufferSize = streamBufferSize;
             _flushStream = flushStream;
@@ -104,7 +107,7 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
         public Task<IUnixFileSystemEntry?> GetEntryByNameAsync(IUnixDirectoryEntry directoryEntry, string name, CancellationToken cancellationToken)
         {
             var searchDirInfo = ((DotNetDirectoryEntry)directoryEntry).Info;
-            var fullPath = Path.Combine(searchDirInfo.FullName, name);
+            var fullPath = GetChildPath(searchDirInfo, name);
             IUnixFileSystemEntry? result;
             if (File.Exists(fullPath))
             {
@@ -126,7 +129,7 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
         public Task<IUnixFileSystemEntry> MoveAsync(IUnixDirectoryEntry parent, IUnixFileSystemEntry source, IUnixDirectoryEntry target, string fileName, CancellationToken cancellationToken)
         {
             var targetEntry = (DotNetDirectoryEntry)target;
-            var targetName = Path.Combine(targetEntry.Info.FullName, fileName);
+            var targetName = GetChildPath(targetEntry.Info, fileName);
 
             if (source is DotNetFileEntry sourceFileEntry)
             {
@@ -159,7 +162,7 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
         public Task<IUnixDirectoryEntry> CreateDirectoryAsync(IUnixDirectoryEntry targetDirectory, string directoryName, CancellationToken cancellationToken)
         {
             var targetEntry = (DotNetDirectoryEntry)targetDirectory;
-            var newDirInfo = targetEntry.DirectoryInfo.CreateSubdirectory(directoryName);
+            var newDirInfo = Directory.CreateDirectory(GetChildPath(targetEntry.Info, directoryName));
             return Task.FromResult<IUnixDirectoryEntry>(new DotNetDirectoryEntry(newDirInfo, false, SupportsNonEmptyDirectoryDelete));
         }
 
@@ -198,7 +201,7 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
         public async Task<IBackgroundTransfer?> CreateAsync(IUnixDirectoryEntry targetDirectory, string fileName, Stream data, CancellationToken cancellationToken)
         {
             var targetEntry = (DotNetDirectoryEntry)targetDirectory;
-            var fileInfo = new FileInfo(Path.Combine(targetEntry.Info.FullName, fileName));
+            var fileInfo = new FileInfo(GetChildPath(targetEntry.Info, fileName));
             using (var output = fileInfo.Create())
             {
                 await data.CopyToAsync(output, _streamBufferSize, _flushStream, cancellationToken).ConfigureAwait(false);
@@ -255,5 +258,8 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
 
             return Task.FromResult<IUnixFileSystemEntry>(new DotNetFileEntry((FileInfo)item));
         }
+
+        private string GetChildPath(FileSystemInfo directory, string name)
+            => SafePath.GetChildPath(_rootFullPath, directory.FullName, name);
     }
 }

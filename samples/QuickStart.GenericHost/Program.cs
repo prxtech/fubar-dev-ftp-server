@@ -5,10 +5,12 @@
 // <author>Mark Junker</author>
 //-----------------------------------------------------------------------
 
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
 using FubarDev.FtpServer;
+using FubarDev.FtpServer.FileSystem.DotNet;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -25,6 +27,8 @@ namespace QuickStart.GenericHost
                     (hostContext, services) =>
                     {
                         services
+                           .Configure<DotNetFileSystemOptions>(
+                                opt => opt.RootPath = Path.Combine(Path.GetTempPath(), "TestFtpServer"))
                            .AddFtpServer(opt => opt
                                .UseDotNetFileSystem()
                                .EnableAnonymousAuthentication())

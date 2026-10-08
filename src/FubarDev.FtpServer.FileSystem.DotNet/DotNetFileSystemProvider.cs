@@ -39,9 +39,15 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
         {
             _accountDirectoryQuery = accountDirectoryQuery;
             _logger = logger;
-            _rootPath = string.IsNullOrEmpty(options.Value.RootPath)
-                ? Path.GetTempPath()
-                : options.Value.RootPath!;
+            if (string.IsNullOrEmpty(options.Value.RootPath))
+            {
+                throw new OptionsValidationException(
+                    Options.DefaultName,
+                    typeof(DotNetFileSystemOptions),
+                    new[] { $"{nameof(DotNetFileSystemOptions)}.{nameof(DotNetFileSystemOptions.RootPath)} must be set." });
+            }
+
+            _rootPath = Path.GetFullPath(options.Value.RootPath);
             _streamBufferSize = options.Value.StreamBufferSize ?? DotNetFileSystem.DefaultStreamBufferSize;
             _allowNonEmptyDirectoryDelete = options.Value.AllowNonEmptyDirectoryDelete;
             _flushAfterWrite = options.Value.FlushAfterWrite;
@@ -54,7 +60,9 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
             var directories = _accountDirectoryQuery.GetDirectories(accountInformation);
             if (!string.IsNullOrEmpty(directories.RootPath))
             {
-                path = Path.Combine(path, directories.RootPath);
+                // Account roots come from user names/e-mail addresses: never let them leave the configured root.
+                path = Path.GetFullPath(Path.Combine(path, directories.RootPath));
+                SafePath.EnsureWithinRoot(_rootPath, path);
             }
 
             _logger?.LogDebug("The root directory for {userName} is {rootPath}", accountInformation.FtpUser.Identity.Name, path);
