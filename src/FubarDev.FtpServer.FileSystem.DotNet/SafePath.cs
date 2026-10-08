@@ -39,7 +39,15 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
                 throw new FileNameNotAllowedException($"Invalid file name: {name}");
             }
 
-            var fullPath = Path.GetFullPath(Path.Combine(directoryFullPath, name));
+            // The OS may normalise the name (Windows trims trailing dots/spaces, so ".. " becomes "..").
+            // Only accept names that resolve to exactly what was written: no aliases, no parser differential.
+            var expectedPath = Path.Join(directoryFullPath, name);
+            var fullPath = Path.GetFullPath(expectedPath);
+            if (!string.Equals(fullPath, expectedPath, PathComparison) || IsWindowsDeviceName(name))
+            {
+                throw new FileNameNotAllowedException($"Invalid file name: {name}");
+            }
+
             EnsureWithinRoot(rootFullPath, fullPath);
             return fullPath;
         }
@@ -88,6 +96,25 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
             }
 
             throw new FileNameNotAllowedException("Path is outside of the root directory.");
+        }
+
+        private static bool IsWindowsDeviceName(string name)
+        {
+            if (!OperatingSystem.IsWindows())
+            {
+                return false;
+            }
+
+            // "NUL", "nul.txt", "COM1.jpg": Windows opens the device, not a file.
+            var dot = name.IndexOf('.');
+            var baseName = (dot < 0 ? name : name.Substring(0, dot)).TrimEnd(' ');
+            return baseName.ToUpperInvariant() switch
+            {
+                "CON" or "PRN" or "AUX" or "NUL" or "CONIN$" or "CONOUT$" => true,
+                { Length: 4 } upper when (upper.StartsWith("COM", StringComparison.Ordinal) || upper.StartsWith("LPT", StringComparison.Ordinal))
+                    && upper[3] is >= '0' and <= '9' or '\u00B9' or '\u00B2' or '\u00B3' => true,
+                _ => false,
+            };
         }
     }
 }

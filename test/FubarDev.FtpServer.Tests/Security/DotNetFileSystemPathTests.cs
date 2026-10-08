@@ -119,6 +119,51 @@ namespace FubarDev.FtpServer.Tests.Security
             AssertNothingOutsideRoot();
         }
 
+        [Theory]
+        [InlineData(".. ")]
+        [InlineData("... ")]
+        [InlineData("...")]
+        [InlineData("plate.jpg.")]
+        [InlineData("plate.jpg ")]
+        [InlineData("CON")]
+        [InlineData("nul.txt")]
+        [InlineData("COM1")]
+        public async Task WindowsNameAliasesAreRejected(string name)
+        {
+            // Windows trims trailing dots/spaces and maps device names, so these never name the file as written.
+            // Unix: they are ordinary names that stay inside the directory.
+            var dir = await _fileSystem.CreateDirectoryAsync(_fileSystem.Root, "camera-1", CancellationToken.None);
+            using var data = new MemoryStream(Encoding.ASCII.GetBytes("x"));
+            try
+            {
+                await _fileSystem.CreateAsync(dir, name, data, CancellationToken.None);
+                Assert.False(OperatingSystem.IsWindows(), "Windows must reject aliased names");
+                Assert.True(File.Exists(Path.Combine(_root, "camera-1", name)));
+            }
+            catch (FileNameNotAllowedException)
+            {
+                Assert.True(OperatingSystem.IsWindows(), "Unix must accept the literal name");
+            }
+
+            AssertNothingOutsideRoot();
+        }
+
+        [Fact]
+        public async Task ProviderRejectsAliasedAccountRootSegmentOnWindows()
+        {
+            var provider = CreateProvider(_root, "camera-1/.. /camera-2");
+            try
+            {
+                await provider.Create(new TestAccountInformation("camera-1"));
+                Assert.False(OperatingSystem.IsWindows(), "Windows must reject the aliased '.. ' segment");
+                Assert.True(Directory.Exists(Path.Combine(_root, "camera-1", ".. ", "camera-2")));
+            }
+            catch (FileNameNotAllowedException)
+            {
+                Assert.True(OperatingSystem.IsWindows(), "Unix must accept the literal segment");
+            }
+        }
+
         [Fact]
         public async Task NormalNamesStillWork()
         {

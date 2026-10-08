@@ -32,7 +32,10 @@ Tests: `Security/CommandLineLengthTests.cs`.
 Every name passed to `DotNetFileSystem` (lookup, create, mkdir, rename target) must be a single
 plain file name: `.`, `..`, rooted names and characters invalid in file names on the host OS are
 rejected with `553` (`FileNameNotAllowedException`). On Windows this covers `\`, `:` (drive and
-alternate-stream syntax) and `/`. The resolved full path must also stay inside the root
+alternate-stream syntax) and `/`. The name must resolve to exactly the path as written: names the
+OS would normalise (Windows trims trailing dots and spaces, so `.. ` would become `..`, and
+`plate.jpg.` would alias `plate.jpg`) are rejected, as are Windows device names (`CON`, `NUL`,
+`COM1`, `nul.txt`, …). The resolved full path must also stay inside the root
 (`SafePath`, `src/FubarDev.FtpServer.FileSystem.DotNet/SafePath.cs`).
 
 `DotNetFileSystemOptions.RootPath` is **required** (no silent fallback to the temp directory).
