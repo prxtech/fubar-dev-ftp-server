@@ -1,4 +1,4 @@
-// <copyright file="FtpResponseAfterWriteDelegate.cs" company="Fubar Development Junker">
+// <copyright file="FtpResponseAfterWriteAsyncDelegate.cs" company="Fubar Development Junker">
 // Copyright (c) Fubar Development Junker. All rights reserved.
 // </copyright>
 

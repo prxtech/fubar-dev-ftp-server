@@ -225,7 +225,8 @@ namespace FubarDev.FtpServer.FileSystem.S3
                     {
                         BucketName = _options.BucketName,
                         Key = key,
-                    }, cancellationToken);
+                    },
+                    cancellationToken);
 
                 if (key.EndsWith("/"))
                     return new S3DirectoryEntry(key);

@@ -47,7 +47,8 @@ namespace FubarDev.FtpServer
         /// <inheritdoc />
         public IEnumerable<string> BuildInfo(Type reference, IFtpConnection connection)
         {
-            var method = reference.GetTypeInfo().GetDeclaredMethod(_functionName);
+            var method = reference.GetTypeInfo().GetDeclaredMethod(_functionName)
+                ?? throw new InvalidOperationException($"Feature function {_functionName} not found on {reference}.");
             var result = method
                .Invoke(null, new object[] { connection });
             if (result is string s)
@@ -55,7 +56,7 @@ namespace FubarDev.FtpServer
                 return new[] { s };
             }
 
-            return (IEnumerable<string>)result;
+            return (IEnumerable<string>?)result ?? Array.Empty<string>();
         }
     }
 }

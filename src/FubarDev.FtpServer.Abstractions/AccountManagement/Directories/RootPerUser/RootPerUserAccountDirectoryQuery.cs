@@ -2,6 +2,7 @@
 // Copyright (c) Fubar Development Junker. All rights reserved.
 // </copyright>
 
+using System;
 using System.IO;
 using System.Security.Claims;
 
@@ -48,7 +49,10 @@ namespace FubarDev.FtpServer.AccountManagement.Directories.RootPerUser
                 return GetAnonymousDirectories(accountInformation.FtpUser);
             }
 
-            var rootPath = Path.Combine(_userRoot, accountInformation.FtpUser.Identity.Name);
+            // Without a name every user would share the user root.
+            var userName = accountInformation.FtpUser.Identity?.Name
+                ?? throw new InvalidOperationException("An authenticated user must have a name.");
+            var rootPath = Path.Combine(_userRoot, userName);
             return new GenericAccountDirectories(rootPath);
         }
 

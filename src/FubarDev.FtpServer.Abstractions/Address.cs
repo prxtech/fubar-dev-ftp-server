@@ -29,7 +29,7 @@ namespace FubarDev.FtpServer
         public Address(string? address, int port)
         {
             _isEnhanced = false;
-            IPAddress = IPAddress.Parse(address);
+            IPAddress = IPAddress.Parse(address ?? throw new ArgumentNullException(nameof(address)));
             Port = port;
         }
 

@@ -178,7 +178,6 @@ namespace FubarDev.FtpServer.ConnectionHandlers
                 // Do nothing
                 return Task.CompletedTask;
             }
-
         }
     }
 }

@@ -10,7 +10,7 @@ namespace FubarDev.FtpServer.FileSystem
     public enum PathSelectionResultType
     {
         /// <summary>
-        /// A directory was found
+        /// A directory was found.
         /// </summary>
         FoundDirectory,
 
@@ -20,7 +20,7 @@ namespace FubarDev.FtpServer.FileSystem
         FoundFile,
 
         /// <summary>
-        /// A file or directory was missing
+        /// A file or directory was missing.
         /// </summary>
         /// <remarks>
         /// This is different from <see cref="MissingDirectory"/>, because the last missing part doesn't contain a <c>/</c>
@@ -29,7 +29,7 @@ namespace FubarDev.FtpServer.FileSystem
         MissingFileOrDirectory,
 
         /// <summary>
-        /// A directory was missing
+        /// A directory was missing.
         /// </summary>
         /// <remarks>
         /// This is different from <see cref="MissingFileOrDirectory"/>, because the last missing part contains a <c>/</c>

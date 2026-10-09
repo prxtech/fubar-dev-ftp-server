@@ -19,7 +19,7 @@ namespace QuickStart.GenericHost
 {
     internal static class Program
     {
-        static Task Main(string[] args)
+        private static Task Main(string[] args)
         {
             var hostBuilder = new HostBuilder()
                .UseConsoleLifetime()

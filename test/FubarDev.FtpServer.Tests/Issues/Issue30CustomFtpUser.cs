@@ -29,7 +29,7 @@ namespace FubarDev.FtpServer.Tests.Issues
         public async Task LoginSucceedsWithTester()
         {
             using var client = new AsyncFtpClient("127.0.0.1", "tester", "test", Server.Port);
-            await client.Connect();
+            await client.Connect(TestContext.Current.CancellationToken);
         }
 
         [Fact]
@@ -37,7 +37,7 @@ namespace FubarDev.FtpServer.Tests.Issues
         {
             using (var client = new AsyncFtpClient("127.0.0.1", "tester", "test", Server.Port))
             {
-                await client.Connect();
+                await client.Connect(TestContext.Current.CancellationToken);
             }
 
             var membershipProvider =
@@ -46,7 +46,7 @@ namespace FubarDev.FtpServer.Tests.Issues
             var start = DateTimeOffset.UtcNow;
             while (membershipProvider.LogoutCalled == 0)
             {
-                await Task.Delay(100);
+                await Task.Delay(100, TestContext.Current.CancellationToken);
                 var end = DateTimeOffset.UtcNow;
                 var delay = end - start;
                 if (delay > maxDelay)
@@ -62,16 +62,14 @@ namespace FubarDev.FtpServer.Tests.Issues
         public async Task LoginFailsWithWrongUserName()
         {
             using var client = new AsyncFtpClient("127.0.0.1", "testerX", "test", Server.Port);
-            await Assert.ThrowsAsync<FtpAuthenticationException>(() => client.Connect())
-               .ConfigureAwait(false);
+            await Assert.ThrowsAsync<FtpAuthenticationException>(() => client.Connect(TestContext.Current.CancellationToken));
         }
 
         [Fact]
         public async Task LoginFailsWithWrongPassword()
         {
             using var client = new AsyncFtpClient("127.0.0.1", "tester", "testX", Server.Port);
-            await Assert.ThrowsAsync<FtpAuthenticationException>(() => client.Connect())
-               .ConfigureAwait(false);
+            await Assert.ThrowsAsync<FtpAuthenticationException>(() => client.Connect(TestContext.Current.CancellationToken));
         }
 
         /// <inheritdoc />

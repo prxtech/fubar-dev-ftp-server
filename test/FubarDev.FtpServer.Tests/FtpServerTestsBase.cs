@@ -5,9 +5,9 @@
 using System;
 using System.Threading.Tasks;
 
-using Microsoft.Extensions.DependencyInjection;
 using Meziantou.Extensions.Logging.Xunit.v3;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using Xunit;

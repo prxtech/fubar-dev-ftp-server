@@ -10,7 +10,7 @@ dependency on private feeds.
 | File | Role |
 |---|---|
 | `global.json` | SDK 10.0.x (`latestFeature`), test runner `Microsoft.Testing.Platform` |
-| `Directory.Build.props` | `net10.0`, `Nullable=enable`, `LangVersion=latest`, .NET analyzers, StyleCop, `Alert.<ProjectName>` PackageId for `src/` projects, version `4.0.0-alert` |
+| `Directory.Build.props` | `net10.0`, `Nullable=enable`, `LangVersion=latest`, .NET analyzers, StyleCop, `TreatWarningsAsErrors`, `Alert.<ProjectName>` PackageId for `src/` projects, version `4.0.0-alert` |
 | `Directory.Packages.props` | All NuGet versions (central package management) |
 | `nuget.config` | nuget.org only |
 
@@ -27,6 +27,9 @@ GnuSslStream/ReadLine shared projects, Azure pipeline.
 
 ## Rules
 
+- The build has zero warnings and `TreatWarningsAsErrors` keeps it that way (nullable, XML docs,
+  StyleCop and xUnit analyzers, in `src/`, `test/` and `samples/`). Fix the cause; suppress only with
+  a justification comment.
 - No inline `Version=` in `.csproj`; add a `<PackageVersion>` to `Directory.Packages.props`.
 - Required connection features are read with `Features.GetRequiredFeature<T>()`; optional ones with `Get<T>()` plus a null check.
 

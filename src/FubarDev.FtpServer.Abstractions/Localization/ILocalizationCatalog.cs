@@ -4,6 +4,9 @@
 
 namespace FubarDev.FtpServer.Localization
 {
+    /// <summary>
+    /// Translates the texts sent to the FTP client.
+    /// </summary>
     public interface ILocalizationCatalog
     {
         /// <summary>Translate <paramref name="text"/>.</summary>
@@ -15,6 +18,6 @@ namespace FubarDev.FtpServer.Localization
         /// <param name="text">The text to be translated.</param>
         /// <param name="args">The format arguments.</param>
         /// <returns>The translated text.</returns>
-        string GetString(string text, params object[] args);
+        string GetString(string text, params object?[] args);
     }
 }

@@ -78,7 +78,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IFeatureInfoProvider, DefaultFeatureInfoProvider>();
 
             services.AddScoped<TcpSocketClientAccessor>();
-            services.AddScoped(sp => sp.GetRequiredService<TcpSocketClientAccessor>().TcpSocketClient);
+            services.AddScoped(
+                sp => sp.GetRequiredService<TcpSocketClientAccessor>().TcpSocketClient
+                    ?? throw new InvalidOperationException("The TCP client of the connection was not set."));
 
             services.AddScoped<IFtpConnection, FtpConnection>();
             services.AddScoped<IFtpLoginStateMachine, FtpLoginStateMachine>();

@@ -30,7 +30,7 @@ namespace FubarDev.FtpServer.Tests.Issues
                 tasks.Add(task);
             }
 
-            await Task.WhenAll(tasks).ConfigureAwait(false);
+            await Task.WhenAll(tasks);
         }
 
         [Fact]

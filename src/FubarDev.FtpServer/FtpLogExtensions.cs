@@ -140,6 +140,5 @@ namespace FubarDev.FtpServer
                 log.Warn(response);
             }
         }
-
     }
 }

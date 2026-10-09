@@ -43,7 +43,7 @@ namespace FubarDev.FtpServer.AccountManagement.Compatibility
                     IAnonymousFtpUser _ => "anonymous",
                     IUnixUser _ => "pam",
                     PasswordAuthorization.UnauthenticatedUser _ => null,
-                    _ => "custom"
+                    _ => "custom",
                 };
             }
 

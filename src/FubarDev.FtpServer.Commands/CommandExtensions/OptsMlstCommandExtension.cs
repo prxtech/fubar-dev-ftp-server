@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using FubarDev.FtpServer.CommandHandlers;
 using FubarDev.FtpServer.Features;
 
+using Microsoft.AspNetCore.Http.Features;
+
 namespace FubarDev.FtpServer.CommandExtensions
 {
     /// <summary>
@@ -31,7 +33,7 @@ namespace FubarDev.FtpServer.CommandExtensions
         public override Task<IFtpResponse?> Process(FtpCommand command, CancellationToken cancellationToken)
         {
             var facts = command.Argument.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-            var factsFeature = Connection.Features.Get<IMlstFactsFeature>();
+            var factsFeature = Connection.Features.GetRequiredFeature<IMlstFactsFeature>();
             factsFeature.ActiveMlstFacts.Clear();
             foreach (var fact in facts)
             {

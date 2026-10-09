@@ -55,10 +55,10 @@ namespace FubarDev.FtpServer
         [Obsolete("Use the IAuthorizationInformationFeature services to get the current status.")]
         public IFtpUser? User
         {
-            get => _featureCollection.Get<IAuthorizationInformationFeature>().User;
+            get => _featureCollection.GetRequiredFeature<IAuthorizationInformationFeature>().User;
             set
             {
-                var feature = _featureCollection.Get<IAuthorizationInformationFeature>();
+                var feature = _featureCollection.GetRequiredFeature<IAuthorizationInformationFeature>();
                 feature.User = value;
                 feature.FtpUser = value?.CreateClaimsPrincipal();
             }
@@ -68,10 +68,10 @@ namespace FubarDev.FtpServer
         [Obsolete("Use the IAuthorizationInformationFeature services to get the current status.")]
         public ClaimsPrincipal? FtpUser
         {
-            get => _featureCollection.Get<IAuthorizationInformationFeature>().FtpUser;
+            get => _featureCollection.GetRequiredFeature<IAuthorizationInformationFeature>().FtpUser;
             set
             {
-                var feature = _featureCollection.Get<IAuthorizationInformationFeature>();
+                var feature = _featureCollection.GetRequiredFeature<IAuthorizationInformationFeature>();
                 feature.FtpUser = value;
                 feature.User = value?.CreateUser();
             }
@@ -81,10 +81,10 @@ namespace FubarDev.FtpServer
         [Obsolete("Use the IAuthorizationInformationFeature services to get the current status.")]
         public IMembershipProvider? MembershipProvider
         {
-            get => _featureCollection.Get<IAuthorizationInformationFeature>().MembershipProvider;
+            get => _featureCollection.GetRequiredFeature<IAuthorizationInformationFeature>().MembershipProvider;
             set
             {
-                var feature = _featureCollection.Get<IAuthorizationInformationFeature>();
+                var feature = _featureCollection.GetRequiredFeature<IAuthorizationInformationFeature>();
                 feature.MembershipProvider = value;
             }
         }
@@ -108,52 +108,52 @@ namespace FubarDev.FtpServer
         [Obsolete("Query the information using the IEncodingFeature instead.")]
         public Encoding NlstEncoding
         {
-            get => _featureCollection.Get<IEncodingFeature>().NlstEncoding;
-            set => _featureCollection.Get<IEncodingFeature>().NlstEncoding = value;
+            get => _featureCollection.GetRequiredFeature<IEncodingFeature>().NlstEncoding;
+            set => _featureCollection.GetRequiredFeature<IEncodingFeature>().NlstEncoding = value;
         }
 
         /// <inheritdoc />
         [Obsolete("Query the information using the IFileSystemFeature instead.")]
         public IUnixFileSystem FileSystem
         {
-            get => _featureCollection.Get<IFileSystemFeature>().FileSystem;
-            set => _featureCollection.Get<IFileSystemFeature>().FileSystem = value;
+            get => _featureCollection.GetRequiredFeature<IFileSystemFeature>().FileSystem;
+            set => _featureCollection.GetRequiredFeature<IFileSystemFeature>().FileSystem = value;
         }
 
         /// <inheritdoc />
         [Obsolete("Query the information using the IFileSystemFeature instead.")]
         public Stack<IUnixDirectoryEntry> Path
         {
-            get => _featureCollection.Get<IFileSystemFeature>().Path;
-            set => _featureCollection.Get<IFileSystemFeature>().Path = value;
+            get => _featureCollection.GetRequiredFeature<IFileSystemFeature>().Path;
+            set => _featureCollection.GetRequiredFeature<IFileSystemFeature>().Path = value;
         }
 
         /// <inheritdoc />
         [Obsolete("Query the information using the IFileSystemFeature instead.")]
-        public IUnixDirectoryEntry CurrentDirectory => _featureCollection.Get<IFileSystemFeature>().CurrentDirectory;
+        public IUnixDirectoryEntry CurrentDirectory => _featureCollection.GetRequiredFeature<IFileSystemFeature>().CurrentDirectory;
 
         /// <inheritdoc />
         [Obsolete("Query the information using the ILocalizationFeature instead.")]
         public CultureInfo Language
         {
-            get => _featureCollection.Get<ILocalizationFeature>().Language;
-            set => _featureCollection.Get<ILocalizationFeature>().Language = value;
+            get => _featureCollection.GetRequiredFeature<ILocalizationFeature>().Language;
+            set => _featureCollection.GetRequiredFeature<ILocalizationFeature>().Language = value;
         }
 
         /// <inheritdoc />
         [Obsolete("Query the information using the ILocalizationFeature instead.")]
         public ILocalizationCatalog Catalog
         {
-            get => _featureCollection.Get<ILocalizationFeature>().Catalog;
-            set => _featureCollection.Get<ILocalizationFeature>().Catalog = value;
+            get => _featureCollection.GetRequiredFeature<ILocalizationFeature>().Catalog;
+            set => _featureCollection.GetRequiredFeature<ILocalizationFeature>().Catalog = value;
         }
 
         /// <inheritdoc />
         [Obsolete("Query the information using the ITransferConfigurationFeature instead.")]
         public FtpTransferMode TransferMode
         {
-            get => _featureCollection.Get<ITransferConfigurationFeature>().TransferMode;
-            set => _featureCollection.Get<ITransferConfigurationFeature>().TransferMode = value;
+            get => _featureCollection.GetRequiredFeature<ITransferConfigurationFeature>().TransferMode;
+            set => _featureCollection.GetRequiredFeature<ITransferConfigurationFeature>().TransferMode = value;
         }
 
         /// <summary>
@@ -245,7 +245,7 @@ namespace FubarDev.FtpServer
 
         /// <inheritdoc />
         [Obsolete("Query the information using the IMlstFactsFeature instead.")]
-        public ISet<string> ActiveMlstFacts => _featureCollection.Get<IMlstFactsFeature>().ActiveMlstFacts;
+        public ISet<string> ActiveMlstFacts => _featureCollection.GetRequiredFeature<IMlstFactsFeature>().ActiveMlstFacts;
 
         /// <summary>
         /// Gets or sets a delegate that allows the creation of an encrypted stream.
@@ -253,8 +253,8 @@ namespace FubarDev.FtpServer
         [Obsolete("Query the information using the ISecureConnectionFeature instead.")]
         public CreateEncryptedStreamDelegate? CreateEncryptedStream
         {
-            get => _featureCollection.Get<ISecureConnectionFeature>().CreateEncryptedStream;
-            set => _featureCollection.Get<ISecureConnectionFeature>().CreateEncryptedStream = value ?? throw new ArgumentNullException(nameof(value));
+            get => _featureCollection.GetRequiredFeature<ISecureConnectionFeature>().CreateEncryptedStream;
+            set => _featureCollection.GetRequiredFeature<ISecureConnectionFeature>().CreateEncryptedStream = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>

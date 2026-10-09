@@ -43,12 +43,24 @@ namespace FubarDev.FtpServer.Networking
             private set => _status = value;
         }
 
+        /// <summary>
+        /// Gets the logger.
+        /// </summary>
         protected ILogger? Logger { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether the connection was closed.
+        /// </summary>
         protected bool IsConnectionClosed => _connectionClosed.IsCancellationRequested;
 
+        /// <summary>
+        /// Gets a value indicating whether a stop was requested.
+        /// </summary>
         protected bool IsStopRequested => _jobStopped.IsCancellationRequested;
 
+        /// <summary>
+        /// Gets a value indicating whether a pause was requested.
+        /// </summary>
         protected bool IsPauseRequested => _jobPaused.IsCancellationRequested;
 
         /// <summary>
@@ -191,9 +203,19 @@ namespace FubarDev.FtpServer.Networking
                .ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Runs the service until it is stopped, paused or the connection is closed.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The task.</returns>
         protected abstract Task ExecuteAsync(
             CancellationToken cancellationToken);
 
+        /// <summary>
+        /// Called before a stop is requested.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The task.</returns>
         protected virtual Task OnStopRequestingAsync(
             CancellationToken cancellationToken)
         {
@@ -201,6 +223,11 @@ namespace FubarDev.FtpServer.Networking
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Called after a stop was requested.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The task.</returns>
         protected virtual Task OnStopRequestedAsync(
             CancellationToken cancellationToken)
         {
@@ -208,6 +235,11 @@ namespace FubarDev.FtpServer.Networking
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Called before a pause is requested.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The task.</returns>
         protected virtual Task OnPauseRequestingAsync(
             CancellationToken cancellationToken)
         {
@@ -215,6 +247,11 @@ namespace FubarDev.FtpServer.Networking
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Called after a pause was requested.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The task.</returns>
         protected virtual Task OnPauseRequestedAsync(
             CancellationToken cancellationToken)
         {
@@ -222,6 +259,11 @@ namespace FubarDev.FtpServer.Networking
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Called before the paused service continues.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The task.</returns>
         protected virtual Task OnContinueRequestingAsync(
             CancellationToken cancellationToken)
         {
@@ -229,6 +271,11 @@ namespace FubarDev.FtpServer.Networking
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Called when the service is paused.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The task.</returns>
         protected virtual Task OnPausedAsync(
             CancellationToken cancellationToken)
         {
@@ -236,6 +283,11 @@ namespace FubarDev.FtpServer.Networking
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Called when the service is stopped.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The task.</returns>
         protected virtual Task OnStoppedAsync(
             CancellationToken cancellationToken)
         {
@@ -243,6 +295,11 @@ namespace FubarDev.FtpServer.Networking
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Called when the paused service continued.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The task.</returns>
         protected virtual Task OnContinuedAsync(
             CancellationToken cancellationToken)
         {
@@ -250,6 +307,12 @@ namespace FubarDev.FtpServer.Networking
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Called when <see cref="ExecuteAsync"/> failed.
+        /// </summary>
+        /// <param name="exception">The exception.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns><see langword="true"/> when the exception was handled, otherwise it is rethrown.</returns>
         protected virtual Task<bool> OnFailedAsync(
             Exception exception,
             CancellationToken cancellationToken)

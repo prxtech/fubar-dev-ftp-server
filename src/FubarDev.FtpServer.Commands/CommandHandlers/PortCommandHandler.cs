@@ -113,17 +113,6 @@ namespace FubarDev.FtpServer.CommandHandlers
                 : ParseLegacy(address!);
         }
 
-        private bool IsAllowedTarget(IPEndPoint target, IPEndPoint remoteEndPoint)
-        {
-            if (!_options.AllowPrivilegedPort && target.Port < 1024)
-            {
-                return false;
-            }
-
-            return _options.AllowForeignAddress
-                || Normalize(target.Address).Equals(Normalize(remoteEndPoint.Address));
-        }
-
         private static IPAddress Normalize(IPAddress address)
             => address.IsIPv4MappedToIPv6 ? address.MapToIPv4() : address;
 
@@ -183,6 +172,17 @@ namespace FubarDev.FtpServer.CommandHandlers
                 default:
                     throw new NotSupportedException($"Unknown network protocol {addressType}");
             }
+        }
+
+        private bool IsAllowedTarget(IPEndPoint target, IPEndPoint remoteEndPoint)
+        {
+            if (!_options.AllowPrivilegedPort && target.Port < 1024)
+            {
+                return false;
+            }
+
+            return _options.AllowForeignAddress
+                || Normalize(target.Address).Equals(Normalize(remoteEndPoint.Address));
         }
     }
 }

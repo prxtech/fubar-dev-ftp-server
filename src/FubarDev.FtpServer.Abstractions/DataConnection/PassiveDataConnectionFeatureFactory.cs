@@ -176,8 +176,8 @@ namespace FubarDev.FtpServer.DataConnection
                 {
                     _client = client;
                     Stream = _client.GetStream();
-                    LocalAddress = (IPEndPoint)client.Client.LocalEndPoint;
-                    RemoteAddress = (IPEndPoint)client.Client.RemoteEndPoint;
+                    LocalAddress = (IPEndPoint)client.Client.LocalEndPoint!;
+                    RemoteAddress = (IPEndPoint)client.Client.RemoteEndPoint!;
                 }
 
                 /// <inheritdoc />

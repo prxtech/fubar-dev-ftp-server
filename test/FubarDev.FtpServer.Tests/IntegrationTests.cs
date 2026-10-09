@@ -56,9 +56,10 @@ namespace FubarDev.FtpServer.Tests
         {
             await Client.UploadBytes(
                 Encoding.UTF8.GetBytes("Hello, this is a test!"),
-                fileName);
+                fileName,
+                token: TestContext.Current.CancellationToken);
 
-            var fileNames = await Client.GetNameListing();
+            var fileNames = await Client.GetNameListing(token: TestContext.Current.CancellationToken);
             Assert.NotNull(fileNames);
             Assert.Collection(
                 fileNames,
@@ -81,7 +82,8 @@ namespace FubarDev.FtpServer.Tests
         {
             await Client.UploadBytes(
                 Encoding.UTF8.GetBytes("Hello, this is a test!"),
-                "test.txt");
+                "test.txt",
+                token: TestContext.Current.CancellationToken);
         }
 
         /// <summary>
@@ -93,11 +95,13 @@ namespace FubarDev.FtpServer.Tests
         {
             await Client.UploadBytes(
                 Encoding.UTF8.GetBytes("Hello, this is a test!"),
-                "test.txt");
+                "test.txt",
+                token: TestContext.Current.CancellationToken);
             var temp = new MemoryStream();
             await Client.DownloadStream(
                 temp,
-                "test.txt");
+                "test.txt",
+                token: TestContext.Current.CancellationToken);
             var readData = Encoding.UTF8.GetString(temp.ToArray());
             Assert.Equal("Hello, this is a test!", readData);
         }

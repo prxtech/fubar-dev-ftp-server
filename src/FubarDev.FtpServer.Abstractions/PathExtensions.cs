@@ -14,7 +14,7 @@ namespace FubarDev.FtpServer
         private static readonly string _directorySeparatorPattern =
             $"[{Regex.Escape($"{Path.DirectorySeparatorChar}{Path.AltDirectorySeparatorChar}")}]";
 
-        public static string? RemoveRoot(this string path)
+        public static string? RemoveRoot(this string? path)
         {
             if (string.IsNullOrEmpty(path))
             {

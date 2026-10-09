@@ -62,7 +62,7 @@ namespace FubarDev.FtpServer.FileSystem.InMemory
                 {
                     lock (_anonymousFileSystemLock)
                     {
-                        if (!_anonymousFileSystems.TryGetValue(fileSystemId, out fileSystem))
+                        if (!_anonymousFileSystems.TryGetValue(fileSystemId, out fileSystem!))
                         {
                             fileSystem = new InMemoryFileSystem(_fileSystemComparer);
                             _anonymousFileSystems.Add(fileSystemId, fileSystem);
@@ -80,7 +80,7 @@ namespace FubarDev.FtpServer.FileSystem.InMemory
                 {
                     lock (_authUserFileSystemLock)
                     {
-                        if (!_authUserFileSystems.TryGetValue(fileSystemId, out fileSystem))
+                        if (!_authUserFileSystems.TryGetValue(fileSystemId, out fileSystem!))
                         {
                             fileSystem = new InMemoryFileSystem(_fileSystemComparer);
                             _authUserFileSystems.Add(fileSystemId, fileSystem);
